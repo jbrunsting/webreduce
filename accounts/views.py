@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 
+
 def signup(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
