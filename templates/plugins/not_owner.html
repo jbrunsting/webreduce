@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Cannot edit plugin "{{ plugin_name }}", not an owner</h1>
+<h2>Owners ({{ plugin_owners|length }}):</h2>
+{% for owner in plugin_owners %}
+<p>owner: {{ owner }}</p>
+{% endfor %}
+{% endblock %}

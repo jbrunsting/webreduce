@@ -3,8 +3,12 @@ from django.db import models
 
 
 class Plugin(models.Model):
-    approved = models.BooleanField(default=False)
+    name = models.CharField(max_length=256)
     owners = models.ManyToManyField(User)
-    code = models.CharField(max_length=5000)
+    code = models.CharField(max_length=4096)
     major_version = models.IntegerField()
     minor_version = models.IntegerField()
+    published = models.BooleanField(default=False)
+    approved = models.BooleanField(default=False)
+    rejected = models.BooleanField(default=False)
+    rejection_reason = models.CharField(max_length=2048)

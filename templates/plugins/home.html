@@ -3,7 +3,9 @@
 {% block content %}
 <h1>Feed</h1>
 <p>Hello {{ username }}!</p>
+<h2>Plugins ({{ plugins|length }}):</h2>
 {% for plugin in plugins %}
 <p>At plugin with code "{{ plugin.code }}"</p>
+<p><a href="/plugins/edit/{{ plugin.id }}">Edit</a></p>
 {% endfor %}
 {% endblock %}
