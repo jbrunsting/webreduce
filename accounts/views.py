@@ -1,7 +1,7 @@
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 
 
 def signup(request):
