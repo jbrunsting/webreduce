@@ -1,11 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Edit Plugin {{ plugin.name }}</h1>
+<h1>{{ plugin.name }}</h1>
+<h2>Owners</h2>
+<ul>
+{% for owner in plugin.owners.all %}
+<li>{{ owner }}</li>
+{% endfor %}
+</ul>
 {% if error is not None %}
 <p>Error: {{ error }}</p>
 {% endif %}
-<p>Editing plugin with code "{{ plugin.code }}"</p>
 <form method="post">
 {% csrf_token %}
 {{form}}
