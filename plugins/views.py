@@ -16,7 +16,8 @@ def home(request):
 
 
 class EditPluginForm(forms.ModelForm):
-    extra_field = forms.CharField(label='Name of Institution') # TODO: Make this edit the owners
+    # TODO: Make this edit the owners
+    extra_field = forms.CharField(label='Name of Institution')
 
     class Meta:
         model = Plugin
@@ -57,7 +58,37 @@ def post_edit_plugin(request, plugin_id):
             'plugin_name': plugin.id,
             'plugin_owners': plugin.owners.all(),
         })
-    return get_edit_plugin(request, plugin)
+
+    error = None
+    if form.is_valid():
+        form_data = form.cleaned_data
+        if (plugin.major_version == form_data['major_version']
+                and plugin.minor_version == form_data['minor_version']):
+            if plugin.published:
+                error = "Version already published, incriment major or minor version"
+            else:
+                plugin.name = form_data['name']
+                # TODO plugin.owners = form_data['owners']
+                plugin.code = form_data['code']
+                plugin.major_version = form_data['major_version']
+                plugin.minor_version = form_data['minor_version']
+                plugin.save()
+        else:
+            new_plugin = Plugin()
+            new_plugin.name = form_data['name']
+            # TODO new_plugin.owners = form_data['owners']
+            new_plugin.code = form_data['code']
+            new_plugin.major_version = form_data['major_version']
+            new_plugin.minor_version = form_data['minor_version']
+            new_plugin.save()
+    else:
+        error = "Invalid form"
+
+    return render(request, 'plugins/edit.html', {
+        'plugin': plugin,
+        'form': form,
+        'error': error,
+    })
 
 
 @login_required
