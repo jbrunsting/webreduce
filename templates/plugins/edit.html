@@ -2,5 +2,13 @@
 
 {% block content %}
 <h1>Edit Plugin {{ plugin.name }}</h1>
+{% if error is not None %}
+<p>Error: {{ error }}</p>
+{% endif %}
 <p>Editing plugin with code "{{ plugin.code }}"</p>
+<form method="post">
+{% csrf_token %}
+{{form}}
+<button type="submit">Submit</button>
+</form>
 {% endblock %}
