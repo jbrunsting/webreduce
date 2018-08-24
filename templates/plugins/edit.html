@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ plugin.name }} v{{ plugin.major_version }}.{{ plugin.minor_version }}</h1>
+<h1>{{ plugin.name }} v{{ version.major_version }}.{{ version.minor_version }}</h1>
 <h2>Owners</h2>
 <ul>
 {% for owner in plugin.owners.all %}

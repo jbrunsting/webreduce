@@ -4,7 +4,11 @@ from django.db import models
 
 class Plugin(models.Model):
     name = models.CharField(max_length=256)
+    description = models.CharField(max_length=2048)
     owners = models.ManyToManyField(User)
+
+class PluginVersion(models.Model):
+    plugin = models.ForeignKey(Plugin, on_delete=models.CASCADE)
     code = models.CharField(max_length=4096)
     major_version = models.IntegerField()
     minor_version = models.IntegerField()
@@ -14,4 +18,4 @@ class Plugin(models.Model):
     rejection_reason = models.CharField(max_length=2048)
 
     class Meta:
-        unique_together = ('name', 'major_version', 'minor_version')
+        unique_together = ('plugin', 'major_version', 'minor_version')

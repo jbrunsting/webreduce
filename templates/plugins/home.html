@@ -5,15 +5,16 @@
 <p>Hello {{ username }}!</p>
 <p><a href="/plugins/create">New plugin</a></p>
 <h2>Plugins ({{ plugins|length }}):</h2>
-{% for name, plugins in plugins.items %}
-<h3>{{ name }}</h3>
-{% for plugin in plugins %}
-<h3>v{{ plugin.major_version }}.{{ plugin.minor_version }}</h3>
-{% if plugin.published %}
+{% for plugin, versions in plugins.items %}
+<h3>{{ plugin.name }}</h3>
+<h4>{{ plugin.description }}</h4>
+{% for version in versions %}
+<h3>v{{ version.major_version }}.{{ version.minor_version }}</h3>
+{% if version.published %}
 Published
 {% else %}
-<p><a href="/plugins/edit/{{ plugin.id }}">Edit</a></p>
-<form action="/plugins/publish/{{ plugin.id }}" method="post">
+<p><a href="/plugins/edit/{{ version.id }}">Edit</a></p>
+<form action="/plugins/publish/{{ version.id }}" method="post">
 {% csrf_token %}
 <button type="submit">Publish</button>
 </form>

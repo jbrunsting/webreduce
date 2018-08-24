@@ -3,25 +3,22 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
-from .models import Plugin
+from .models import Plugin, PluginVersion
 
 
 @login_required
 @require_http_methods(["GET"])
 def home(request):
-    plugins_by_name = {}
+    plugins = {}
     owned_plugins = Plugin.objects.filter(owners=request.user.id)
     for plugin in owned_plugins:
-        name = plugin.name
-        if name not in plugins_by_name:
-            plugins_by_name[name] = []
-        plugins_by_name[name].append(plugin)
+        plugins[plugin] = plugin.pluginversion_set.all()
 
     return render(
         request,
         'plugins/home.html', {
             'username': request.user.username,
-            'plugins': plugins_by_name,
+            'plugins': plugins,
         })
 
 
@@ -30,7 +27,7 @@ class CreatePluginForm(forms.ModelForm):
         model = Plugin
         fields = [
             'name',
-            'code',
+            'description',
         ]
 
 
@@ -49,8 +46,6 @@ def post_create_plugin(request):
             error = "Plugin with that name already exists"
         else:
             plugin = form.save(commit=False)
-            plugin.major_version = 1
-            plugin.minor_version = 0
             plugin.save()
             plugin.owners.add(request.user)
             plugin.save()
@@ -73,36 +68,36 @@ def create_plugin(request):
     return post_create_plugin(request)
 
 
-class EditPluginForm(forms.ModelForm):
+class EditVersionForm(forms.ModelForm):
     class Meta:
-        model = Plugin
+        model = PluginVersion
         fields = [
             'code',
         ]
 
 
-def get_edit_plugin(request, plugin, error=None):
-    form = EditPluginForm(instance=plugin)
+def get_edit_version(request, version, error=None):
+    form = EditVersionForm(instance=version)
 
     return render(request, 'plugins/edit.html', {
-        'plugin': plugin,
+        'version': version,
         'form': form,
         'error': error,
     })
 
 
-def post_edit_plugin(request, plugin_id):
-    plugin = Plugin.objects.get(pk=plugin_id)
-    form = EditPluginForm(request.POST, instance=plugin)
+def post_edit_version(request, version_id):
+    version = PluginVersion.objects.get(pk=version_id)
+    form = EditVersionForm(request.POST, instance=version)
     # TODO: Use django permissions to guard against this
-    if not plugin.owners.filter(pk=request.user.pk).exists():
+    if not version.plugin.owners.filter(pk=request.user.pk).exists():
         return render(request, 'plugins/not_owner.html', {
-            'plugin_name': plugin.id,
-            'plugin_owners': plugin.owners.all(),
+            'plugin_name': version.plugin.name,
+            'plugin_owners': version.plugin.owners.all(),
         })
 
     error = None
-    if plugin.published:
+    if version.published:
         error = "Plugin already published"
     elif form.is_valid():
         form.save()
@@ -110,7 +105,7 @@ def post_edit_plugin(request, plugin_id):
         error = "Invalid form"
 
     return render(request, 'plugins/edit.html', {
-        'plugin': plugin,
+        'version': version,
         'form': form,
         'error': error,
     })
@@ -118,38 +113,38 @@ def post_edit_plugin(request, plugin_id):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def edit_plugin(request, plugin_id):
-    if not Plugin.objects.filter(pk=plugin_id).exists():
+def edit_version(request, version_id):
+    if not PluginVersion.objects.filter(pk=version_id).exists():
         return render(request, 'plugins/not_found.html', {
-            'plugin_id': plugin_id,
+            'version_id': version_id,
         })
 
-    plugin = Plugin.objects.get(pk=plugin_id)
+    version = PluginVersion.objects.get(pk=version_id)
     # TODO: Use django permissions to guard against this
-    if not plugin.owners.filter(pk=request.user.pk).exists():
+    if not version.plugin.owners.filter(pk=request.user.pk).exists():
         return render(request, 'plugins/not_owner.html', {
-            'plugin_name': plugin.id,
-            'plugin_owners': plugin.owners.all(),
+            'plugin_name': version.plugin.name,
+            'plugin_owners': version.plugin.owners.all(),
         })
 
     if request.method == "GET":
-        return get_edit_plugin(request, plugin)
+        return get_edit_version(request, version)
 
-    return post_edit_plugin(request, plugin_id)
+    return post_edit_version(request, version_id)
 
 
 @login_required
 @require_http_methods(["POST"])
-def publish_plugin(request, plugin_id):
-    plugin = Plugin.objects.get(pk=plugin_id)
+def publish_version(request, version_id):
+    version = PluginVersion.objects.get(pk=version_id)
     # TODO: Use django permissions to guard against this
-    if not plugin.owners.filter(pk=request.user.pk).exists():
+    if not version.plugin.owners.filter(pk=request.user.pk).exists():
         return render(request, 'plugins/not_owner.html', {
-            'plugin_name': plugin.id,
-            'plugin_owners': plugin.owners.all(),
+            'plugin_name': version.plugin.name,
+            'plugin_owners': version.plugin.owners.all(),
         })
 
-    plugin.published = True
-    plugin.save()
+    version.published = True
+    version.save()
 
     return redirect('/plugins')
