@@ -3,6 +3,7 @@
 {% block content %}
 <h1>Feed</h1>
 <p>Hello {{ username }}!</p>
+<p><a href="/plugins/create">New plugin</a></p>
 <h2>Plugins ({{ plugins|length }}):</h2>
 {% for plugin in plugins %}
 <h3>{{ plugin.name }} v{{ plugin.major_version }}.{{ plugin.minor_version }}</h3>

@@ -16,15 +16,53 @@ def home(request):
             'plugins': Plugin.objects.filter(owners=request.user.id),
         })
 
+
 class CreatePluginForm(forms.ModelForm):
     class Meta:
         model = Plugin
         fields = [
             'name',
             'code',
-            'minor_version',
-            'major_version',
         ]
+
+
+def get_create_plugin(request):
+    return render(request, 'plugins/create.html', {
+        'form': CreatePluginForm(),
+    })
+
+
+def post_create_plugin(request):
+    form = CreatePluginForm(request.POST)
+    error = None
+    form.is_valid()
+    if form.is_valid():
+        if Plugin.objects.filter(name=form.cleaned_data['name']).exists():
+            error = "Plugin with that name already exists"
+        else:
+            plugin = form.save(commit=False)
+            plugin.major_version = 1
+            plugin.minor_version = 0
+            plugin.save()
+            plugin.owners.add(request.user)
+            plugin.save()
+            return redirect('/plugins')
+    else:
+        error = "Form invalid"
+
+    return render(request, 'plugins/create.html', {
+        'form': form,
+        'error': error,
+    })
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def create_plugin(request):
+    if request.method == "GET":
+        return get_create_plugin(request)
+
+    return post_create_plugin(request)
 
 
 class EditPluginForm(forms.ModelForm):
