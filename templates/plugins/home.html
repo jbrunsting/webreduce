@@ -5,8 +5,10 @@
 <p>Hello {{ username }}!</p>
 <p><a href="/plugins/create">New plugin</a></p>
 <h2>Plugins ({{ plugins|length }}):</h2>
+{% for name, plugins in plugins.items %}
+<h3>{{ name }}</h3>
 {% for plugin in plugins %}
-<h3>{{ plugin.name }} v{{ plugin.major_version }}.{{ plugin.minor_version }}</h3>
+<h3>v{{ plugin.major_version }}.{{ plugin.minor_version }}</h3>
 {% if plugin.published %}
 Published
 {% else %}
@@ -16,5 +18,6 @@ Published
 <button type="submit">Publish</button>
 </form>
 {% endif %}
+{% endfor %}
 {% endfor %}
 {% endblock %}

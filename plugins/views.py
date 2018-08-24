@@ -9,11 +9,19 @@ from .models import Plugin
 @login_required
 @require_http_methods(["GET"])
 def home(request):
+    plugins_by_name = {}
+    owned_plugins = Plugin.objects.filter(owners=request.user.id)
+    for plugin in owned_plugins:
+        name = plugin.name
+        if name not in plugins_by_name:
+            plugins_by_name[name] = []
+        plugins_by_name[name].append(plugin)
+
     return render(
         request,
         'plugins/home.html', {
             'username': request.user.username,
-            'plugins': Plugin.objects.filter(owners=request.user.id),
+            'plugins': plugins_by_name,
         })
 
 
