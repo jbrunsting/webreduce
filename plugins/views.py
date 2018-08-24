@@ -16,26 +16,27 @@ def home(request):
             'plugins': Plugin.objects.filter(owners=request.user.id),
         })
 
-
-class EditPluginForm(forms.ModelForm):
+class CreatePluginForm(forms.ModelForm):
     class Meta:
         model = Plugin
         fields = [
             'name',
             'code',
-            'major_version',
             'minor_version',
+            'major_version',
+        ]
+
+
+class EditPluginForm(forms.ModelForm):
+    class Meta:
+        model = Plugin
+        fields = [
+            'code',
         ]
 
 
 def get_edit_plugin(request, plugin, error=None):
-    form = EditPluginForm({
-        'name': plugin.name,
-        'owners': plugin.owners.all(),
-        'code': plugin.code,
-        'major_version': plugin.major_version,
-        'minor_version': plugin.minor_version,
-    })
+    form = EditPluginForm(instance=plugin)
 
     return render(request, 'plugins/edit.html', {
         'plugin': plugin,
@@ -45,8 +46,8 @@ def get_edit_plugin(request, plugin, error=None):
 
 
 def post_edit_plugin(request, plugin_id):
-    form = EditPluginForm(request.POST)
     plugin = Plugin.objects.get(pk=plugin_id)
+    form = EditPluginForm(request.POST, instance=plugin)
     # TODO: Use django permissions to guard against this
     if not plugin.owners.filter(pk=request.user.pk).exists():
         return render(request, 'plugins/not_owner.html', {
@@ -55,27 +56,10 @@ def post_edit_plugin(request, plugin_id):
         })
 
     error = None
-    if form.is_valid():
-        form_data = form.cleaned_data
-        if (plugin.major_version == form_data['major_version']
-                and plugin.minor_version == form_data['minor_version']):
-            if plugin.published:
-                error = "Version already published, incriment major or minor version"
-            else:
-                plugin.name = form_data['name']
-                plugin.code = form_data['code']
-                plugin.major_version = form_data['major_version']
-                plugin.minor_version = form_data['minor_version']
-                plugin.save()
-        else:
-            new_plugin = Plugin()
-            new_plugin.name = form_data['name']
-            new_plugin.code = form_data['code']
-            new_plugin.major_version = form_data['major_version']
-            new_plugin.minor_version = form_data['minor_version']
-            new_plugin.save()
-            new_plugin.owners.add(request.user)
-            new_plugin.save()
+    if plugin.published:
+        error = "Plugin already published"
+    elif form.is_valid():
+        form.save()
     else:
         error = "Invalid form"
 

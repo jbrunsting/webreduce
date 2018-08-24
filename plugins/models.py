@@ -12,3 +12,6 @@ class Plugin(models.Model):
     approved = models.BooleanField(default=False)
     rejected = models.BooleanField(default=False)
     rejection_reason = models.CharField(max_length=2048)
+
+    class Meta:
+        unique_together = ('name', 'major_version', 'minor_version')

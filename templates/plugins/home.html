@@ -6,10 +6,10 @@
 <h2>Plugins ({{ plugins|length }}):</h2>
 {% for plugin in plugins %}
 <h3>{{ plugin.name }} v{{ plugin.major_version }}.{{ plugin.minor_version }}</h3>
-<p><a href="/plugins/edit/{{ plugin.id }}">Edit</a></p>
 {% if plugin.published %}
 Published
 {% else %}
+<p><a href="/plugins/edit/{{ plugin.id }}">Edit</a></p>
 <form action="/plugins/publish/{{ plugin.id }}" method="post">
 {% csrf_token %}
 <button type="submit">Publish</button>
