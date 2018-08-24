@@ -7,6 +7,7 @@ class Plugin(models.Model):
     description = models.CharField(max_length=2048)
     owners = models.ManyToManyField(User)
 
+
 class PluginVersion(models.Model):
     plugin = models.ForeignKey(Plugin, on_delete=models.CASCADE)
     code = models.CharField(max_length=4096)

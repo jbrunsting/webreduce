@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('', views.home),
     path('create', views.create_plugin),
+    path('update/<plugin_id>', views.create_version),
     path('edit/<version_id>', views.edit_version),
     path('publish/<version_id>', views.publish_version),
 ]

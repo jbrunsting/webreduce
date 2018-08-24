@@ -8,6 +8,7 @@
 {% for plugin, versions in plugins.items %}
 <h3>{{ plugin.name }}</h3>
 <h4>{{ plugin.description }}</h4>
+<p><a href="/plugins/update/{{ plugin.id }}">New version</a></p>
 {% for version in versions %}
 <h3>v{{ version.major_version }}.{{ version.minor_version }}</h3>
 {% if version.published %}

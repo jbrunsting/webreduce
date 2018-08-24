@@ -14,12 +14,10 @@ def home(request):
     for plugin in owned_plugins:
         plugins[plugin] = plugin.pluginversion_set.all()
 
-    return render(
-        request,
-        'plugins/home.html', {
-            'username': request.user.username,
-            'plugins': plugins,
-        })
+    return render(request, 'plugins/home.html', {
+        'username': request.user.username,
+        'plugins': plugins,
+    })
 
 
 class CreatePluginForm(forms.ModelForm):
@@ -49,7 +47,7 @@ def post_create_plugin(request):
             plugin.save()
             plugin.owners.add(request.user)
             plugin.save()
-            return redirect('/plugins')
+            return redirect('/plugins/update/' + str(plugin.id))
     else:
         error = "Form invalid"
 
@@ -66,6 +64,102 @@ def create_plugin(request):
         return get_create_plugin(request)
 
     return post_create_plugin(request)
+
+
+class CreateVersionForm(forms.ModelForm):
+    class Meta:
+        model = PluginVersion
+        fields = [
+            'code',
+            'major_version',
+            'minor_version',
+        ]
+
+
+def get_create_version(request, plugin):
+    code = ""
+    major_version = 1
+    minor_version = 0
+    for version in plugin.pluginversion_set.all():
+        if (version.major_version > major_version
+                or version.major_version == major_version
+                and version.minor_version >= minor_version):
+            code = version.code
+            major_version = version.major_version
+            minor_version = version.minor_version + 1
+
+    form = CreateVersionForm({
+        'code': code,
+        'major_version': major_version,
+        'minor_version': minor_version,
+    })
+
+    return render(request, 'plugins/update.html', {
+        'form': form,
+    })
+
+
+def post_create_version(request, plugin):
+    form = CreateVersionForm(request.POST)
+    error = None
+    form.is_valid()
+    if form.is_valid():
+        # TODO: Gross, clean up
+        version = form.save(commit=False)
+        version_set = plugin.pluginversion_set.all()
+        if version_set.filter(major_version__gt=version.major_version).exists():
+            error = "A larger major version already exists, incriment major version number"
+        elif version_set.filter(
+                major_version=version.major_version,
+                minor_version=version.minor_version):
+            error = "Version already exists, incriment major or minor version number"
+        elif (not version.major_version == 1 and not version_set.filter(
+                major_version=version.major_version).exists()
+              and not version_set.filter(major_version=version.major_version -
+                                         1).exists()):
+            error = "Major version number skipped, decriment major version number"
+        elif (version_set.filter(major_version=version.major_version).exists()
+              and not version_set.filter(
+                  major_version=version.major_version,
+                  minor_version=version.minor_version - 1).exists()):
+            error = "Minor version number skipped, decriment minor version number"
+        elif (not version_set.filter(
+                major_version=version.major_version).exists()
+              and version.minor_version != 0):
+            error = "The first minor version for a new major version must be 0"
+        else:
+            version.plugin = plugin
+            version.save()
+            return redirect('/plugins')
+    else:
+        error = "Form invalid"
+
+    return render(request, 'plugins/create.html', {
+        'form': form,
+        'error': error,
+    })
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def create_version(request, plugin_id):
+    if not Plugin.objects.filter(pk=plugin_id).exists():
+        return render(request, 'plugins/not_found.html', {
+            'plugin_id': plugin_id,
+        })
+
+    plugin = Plugin.objects.get(pk=plugin_id)
+    # TODO: Use django permissions to guard against this
+    if not plugin.owners.filter(pk=request.user.pk).exists():
+        return render(request, 'plugins/not_owner.html', {
+            'plugin_name': plugin.name,
+            'plugin_owners': plugin.owners.all(),
+        })
+
+    if request.method == "GET":
+        return get_create_version(request, plugin)
+
+    return post_create_version(request, plugin)
 
 
 class EditVersionForm(forms.ModelForm):
@@ -91,10 +185,11 @@ def post_edit_version(request, version_id):
     form = EditVersionForm(request.POST, instance=version)
     # TODO: Use django permissions to guard against this
     if not version.plugin.owners.filter(pk=request.user.pk).exists():
-        return render(request, 'plugins/not_owner.html', {
-            'plugin_name': version.plugin.name,
-            'plugin_owners': version.plugin.owners.all(),
-        })
+        return render(
+            request, 'plugins/not_owner.html', {
+                'plugin_name': version.plugin.name,
+                'plugin_owners': version.plugin.owners.all(),
+            })
 
     error = None
     if version.published:
@@ -122,10 +217,11 @@ def edit_version(request, version_id):
     version = PluginVersion.objects.get(pk=version_id)
     # TODO: Use django permissions to guard against this
     if not version.plugin.owners.filter(pk=request.user.pk).exists():
-        return render(request, 'plugins/not_owner.html', {
-            'plugin_name': version.plugin.name,
-            'plugin_owners': version.plugin.owners.all(),
-        })
+        return render(
+            request, 'plugins/not_owner.html', {
+                'plugin_name': version.plugin.name,
+                'plugin_owners': version.plugin.owners.all(),
+            })
 
     if request.method == "GET":
         return get_edit_version(request, version)
@@ -139,10 +235,11 @@ def publish_version(request, version_id):
     version = PluginVersion.objects.get(pk=version_id)
     # TODO: Use django permissions to guard against this
     if not version.plugin.owners.filter(pk=request.user.pk).exists():
-        return render(request, 'plugins/not_owner.html', {
-            'plugin_name': version.plugin.name,
-            'plugin_owners': version.plugin.owners.all(),
-        })
+        return render(
+            request, 'plugins/not_owner.html', {
+                'plugin_name': version.plugin.name,
+                'plugin_owners': version.plugin.owners.all(),
+            })
 
     version.published = True
     version.save()
