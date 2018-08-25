@@ -2,5 +2,21 @@
 
 {% block content %}
 <h1>Feed</h1>
-<p>Hello {{ username }}!</p>
+<p><a href="/feed/search">Find new plugin</a></p>
+<ul>
+{% for plugin in subscriptions %}
+<li>
+    <h3>
+        {{ plugin.name }}
+    </h3>
+    <sub>
+        {{ plugin.description }}
+    </sub>
+    <form action="/feed/unsubscribe/{{ plugin.id }}" method="post">
+    {% csrf_token %}
+    <button type="submit">Unsubscribe</button>
+    </form>
+</li>
+{% endfor %}
+</ul>
 {% endblock %}

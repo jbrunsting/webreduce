@@ -144,7 +144,7 @@ def post_create_version(request, plugin):
 @require_http_methods(["GET", "POST"])
 def create_version(request, plugin_id):
     if not Plugin.objects.filter(pk=plugin_id).exists():
-        return render(request, 'plugins/not_found.html', {
+        return render(request, 'plugins/plugin_not_found.html', {
             'plugin_id': plugin_id,
         })
 
@@ -210,7 +210,7 @@ def post_edit_version(request, version_id):
 @require_http_methods(["GET", "POST"])
 def edit_version(request, version_id):
     if not PluginVersion.objects.filter(pk=version_id).exists():
-        return render(request, 'plugins/not_found.html', {
+        return render(request, 'plugins/version_not_found.html', {
             'version_id': version_id,
         })
 

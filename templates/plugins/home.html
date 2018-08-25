@@ -1,18 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Feed</h1>
-<p>Hello {{ username }}!</p>
+<h1>Plugins</h1>
 <p><a href="/plugins/create">New plugin</a></p>
-<h2>Plugins ({{ plugins|length }}):</h2>
 {% for plugin, versions in plugins.items %}
-<h3>{{ plugin.name }}</h3>
-<h4>{{ plugin.description }}</h4>
+<h2>{{ plugin.name }}</h2>
+<sub>{{ plugin.description }}</sub>
 <p><a href="/plugins/update/{{ plugin.id }}">New version</a></p>
 {% for version in versions %}
 <h3>v{{ version.major_version }}.{{ version.minor_version }}</h3>
 {% if version.published %}
-Published
+{% if version.approved %}
+Approved
+{% elif version.rejected %}
+Rejected: {{ version.rejection_reason }}
+{% else %}
+Pending approval
+{% endif %}
 {% else %}
 <p><a href="/plugins/edit/{{ version.id }}">Edit</a></p>
 <form action="/plugins/publish/{{ version.id }}" method="post">

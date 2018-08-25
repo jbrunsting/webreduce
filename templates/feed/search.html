@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Search</h1>
+<form action="/feed/search" method="post">
+{% csrf_token %}
+{{ form }}
+<button type="submit">Search</button>
+</form>
+
+<h2>Results</h2>
+<ul>
+{% for plugin in results %}
+<li>
+    <h3>
+        {{ plugin.name }}
+    </h3>
+    <sub>
+        {{ plugin.description }}
+    </sub>
+    {% if plugin in subscribed %}
+    <p>Subscribed</p>
+    {% else %}
+    <form action="/feed/subscribe/{{ plugin.id }}" method="post">
+    {% csrf_token %}
+    <button type="submit">Subscribe</button>
+    </form>
+    {% endif %}
+</li>
+{% endfor %}
+</ul>
+{% endblock %}

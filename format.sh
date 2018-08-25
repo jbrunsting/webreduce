@@ -1,2 +1,2 @@
 yapf -i -r .
-isort -rc
+yes | isort -rc > /dev/null
