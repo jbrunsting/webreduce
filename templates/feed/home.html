@@ -4,15 +4,15 @@
 <h1>Feed</h1>
 <p><a href="/feed/search">Find new plugin</a></p>
 <ul>
-{% for plugin in subscriptions %}
+{% for plugin_version in subscriptions %}
 <li>
     <h3>
-        {{ plugin.name }}
+        {{ plugin_version.plugin.name }}
     </h3>
     <sub>
-        {{ plugin.description }}
+        {{ plugin_version.plugin.description }}
     </sub>
-    <form action="/feed/unsubscribe/{{ plugin.id }}" method="post">
+    <form action="/feed/unsubscribe/{{ plugin_version.id }}" method="post">
     {% csrf_token %}
     <button type="submit">Unsubscribe</button>
     </form>

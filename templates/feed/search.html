@@ -9,18 +9,18 @@
 
 <h2>Results</h2>
 <ul>
-{% for plugin in results %}
+{% for plugin_version in results %}
 <li>
     <h3>
-        {{ plugin.name }}
+        {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
     </h3>
     <sub>
-        {{ plugin.description }}
+        {{ plugin_version.plugin.description }}
     </sub>
-    {% if plugin in subscribed %}
+    {% if plugin_version.plugin in subscribed %}
     <p>Subscribed</p>
     {% else %}
-    <form action="/feed/subscribe/{{ plugin.id }}" method="post">
+    <form action="/feed/subscribe/{{ plugin_version.id }}" method="post">
     {% csrf_token %}
     <button type="submit">Subscribe</button>
     </form>
