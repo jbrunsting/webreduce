@@ -232,6 +232,11 @@ def edit_version(request, version_id):
 @login_required
 @require_http_methods(["POST"])
 def publish_version(request, version_id):
+    if not PluginVersion.objects.filter(pk=version_id).exists():
+        return render(request, 'plugins/version_not_found.html', {
+            'version_id': version_id,
+        })
+
     version = PluginVersion.objects.get(pk=version_id)
     # TODO: Use django permissions to guard against this
     if not version.plugin.owners.filter(pk=request.user.pk).exists():
@@ -245,3 +250,25 @@ def publish_version(request, version_id):
     version.save()
 
     return redirect('/plugins')
+
+
+@login_required
+@require_http_methods(["GET"])
+def view_version(request, version_id):
+    if not PluginVersion.objects.filter(pk=version_id).exists():
+        return render(request, 'plugins/version_not_found.html', {
+            'version_id': version_id,
+        })
+
+    version = PluginVersion.objects.get(pk=version_id)
+    if not version.plugin.owners.filter(
+            pk=request.user.pk).exists() and not version.plugin.approved:
+        return render(
+            request, 'plugins/not_owner.html', {
+                'plugin_name': version.plugin.name,
+                'plugin_owners': version.plugin.owners.all(),
+            })
+
+    return render(request, 'plugins/view_version.html', {
+        'plugin_version': version,
+    })

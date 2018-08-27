@@ -8,12 +8,38 @@ from plugins.models import Plugin, PluginVersion
 from .models import ConfiguredPlugin
 
 
+# Assumes there is at least one plugin version
+def newest_version(plugin_version):
+    max_version = plugin_version
+    for version in max_version.plugin.pluginversion_set.all():
+        if (version.major_version > max_version.major_version
+                or version.major_version == max_version.major_version
+                and version.minor_version > max_version.minor_version):
+            max_version = version
+
+    return max_version
+
+
+def get_updates(versions):
+    updates = []
+    for version in versions:
+        newest = newest_version(version)
+        if newest != version:
+            updates.append((version, newest))
+
+    return updates
+
+
 @login_required
 @require_http_methods(["GET"])
 def home(request):
     subscriptions = ConfiguredPlugin.objects.filter(user=request.user)
-    return render(request, 'feed/home.html',
-                  {'subscriptions': [s.plugin_version for s in subscriptions]})
+    versions = [s.plugin_version for s in subscriptions]
+    updates = get_updates(versions)
+    return render(request, 'feed/home.html', {
+        'subscriptions': versions,
+        'updates': updates
+    })
 
 
 class SearchForm(forms.Form):
@@ -104,4 +130,22 @@ def unsubscribe(request, plugin_version_id):
         user=request.user, plugin_version=plugin_version)
     if candidates.exists():
         candidates.first().delete()
+    return redirect('/feed')
+
+
+@login_required
+@require_http_methods(["POST"])
+def update(request, plugin_version_id):
+    if not PluginVersion.objects.filter(pk=plugin_version_id).exists():
+        return render(request, 'plugins/version_not_found.html', {
+            'plugin_version_id': plugin_version_id,
+        })
+
+    new_version = PluginVersion.objects.get(pk=plugin_version_id)
+    configurations = ConfiguredPlugin.objects.filter(
+        user=request.user, plugin_version__plugin=new_version.plugin)
+    if configurations.exists():
+        configuration = configurations.first()
+        configuration.plugin_version = new_version
+        configuration.save()
     return redirect('/feed')

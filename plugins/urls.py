@@ -8,4 +8,5 @@ urlpatterns = [
     path('update/<plugin_id>', views.create_version),
     path('edit/<version_id>', views.edit_version),
     path('publish/<version_id>', views.publish_version),
+    path('view/<version_id>', views.view_version),
 ]
