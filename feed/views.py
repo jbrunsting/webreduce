@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 from plugins.models import Plugin, PluginVersion
@@ -8,7 +8,6 @@ from plugins.models import Plugin, PluginVersion
 from .models import ConfiguredPlugin
 
 
-# Assumes there is at least one plugin version
 def newest_version(plugin_version):
     max_version = plugin_version
     for version in max_version.plugin.pluginversion_set.all():
@@ -57,7 +56,7 @@ def newest_versions(versions):
                 newest_versions[version.plugin] = version
         else:
             newest_versions[version.plugin] = version
-    return newest_versions.values()
+    return list(newest_versions.values())
 
 
 def get_search_results(search_term, user_id):
@@ -90,12 +89,28 @@ def search(request):
 
     subscriptions = ConfiguredPlugin.objects.filter(user=request.user).all()
 
+    top_plugins = ConfiguredPlugin.objects.values(
+        'plugin_version__plugin').annotate(
+            plugin_count=Count('plugin_version__plugin')).order_by(
+                '-plugin_count')[:10]
+
+    print(top_plugins)
+
+    top_versions = []
+    for plugin_info in top_plugins:
+        plugin_pk = plugin_info['plugin_version__plugin']
+        plugin = Plugin.objects.get(pk=plugin_pk)
+        top_versions.append(newest_versions(plugin.pluginversion_set.all())[0])
+
+    print(top_versions)
+
     return render(
         request, 'feed/search.html', {
             'user': request.user,
             'results': results,
             'subscribed': [s.plugin_version.plugin for s in subscriptions],
-            'form': form
+            'top_versions': top_versions,
+            'form': form,
         })
 
 
