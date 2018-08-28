@@ -94,7 +94,7 @@ def search(request):
         request, 'feed/search.html', {
             'user': request.user,
             'results': results,
-            'subscribed': [s.plugin for s in subscriptions],
+            'subscribed': [s.plugin_version for s in subscriptions],
             'form': form
         })
 
