@@ -1,5 +1,6 @@
 from django import forms
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
@@ -272,3 +273,54 @@ def view_version(request, version_id):
     return render(request, 'plugins/view_version.html', {
         'plugin_version': version,
     })
+
+
+class RejectionForm(forms.Form):
+    rejection_reason = forms.CharField(max_length=2048)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+@require_http_methods(["GET"])
+def approvals(request):
+    versions = PluginVersion.objects.filter(
+        published=True, approved=False, rejected=False)
+    return render(request, 'plugins/approvals.html', {
+        'versions': versions,
+        'rejection_form': RejectionForm(),
+    })
+
+
+@user_passes_test(lambda u: u.is_superuser)
+@require_http_methods(["POST"])
+def approve(request, version_id):
+    if not PluginVersion.objects.filter(pk=version_id).exists():
+        return render(request, 'plugins/version_not_found.html', {
+            'version_id': version_id,
+        })
+
+    version = PluginVersion.objects.get(pk=version_id)
+    version.approved = True
+    version.save()
+
+    return redirect('/plugins/approvals')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+@require_http_methods(["POST"])
+def reject(request, version_id):
+    if not PluginVersion.objects.filter(pk=version_id).exists():
+        return render(request, 'plugins/version_not_found.html', {
+            'version_id': version_id,
+        })
+
+    rejection_form = RejectionForm(request.POST)
+
+    if not rejection_form.is_valid():
+        return redirect('/plugins/approvals')
+
+    version = PluginVersion.objects.get(pk=version_id)
+    version.rejected = True
+    version.rejection_reason = rejection_form.cleaned_data['rejection_reason']
+    version.save()
+
+    return redirect('/plugins/approvals')

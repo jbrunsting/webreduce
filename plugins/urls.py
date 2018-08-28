@@ -9,4 +9,7 @@ urlpatterns = [
     path('edit/<version_id>', views.edit_version),
     path('publish/<version_id>', views.publish_version),
     path('view/<version_id>', views.view_version),
+    path('approvals', views.approvals),
+    path('approve/<version_id>', views.approve),
+    path('reject/<version_id>', views.reject),
 ]

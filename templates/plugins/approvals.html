@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Pending Approval</h1>
+<ul>
+{% for version in versions %}
+<li>
+    <h3>
+        {{ version.plugin.name }} v{{ version.major_version }}.{{ version.minor_version }}
+    </h3>
+    <code>
+        {{ version.plugin.code }}
+    </code>
+    <form action="/plugins/approve/{{ version.id }}" method="post">
+        {% csrf_token %}
+        <button type="submit">Approved</button>
+    </form>
+    <form action="/plugins/reject/{{ version.id }}" method="post">
+        {% csrf_token %}
+        {{ rejection_form }}
+        <button type="submit">Reject</button>
+    </form>
+</li>
+{% endfor %}
+</ul>
+{% endblock %}
