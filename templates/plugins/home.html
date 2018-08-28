@@ -20,8 +20,8 @@ Pending approval
 {% else %}
 <p><a href="/plugins/edit/{{ version.id }}">Edit</a></p>
 <form action="/plugins/publish/{{ version.id }}" method="post">
-{% csrf_token %}
-<button type="submit">Publish</button>
+    {% csrf_token %}
+    <button type="submit">Publish</button>
 </form>
 {% endif %}
 {% endfor %}

@@ -4,20 +4,20 @@
 <h1>Feed</h1>
 <p><a href="/feed/search">Find new plugin</a></p>
 <ul>
-{% for plugin_version in subscriptions %}
-<li>
-    <h3>
-        {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
-    </h3>
-    <sub>
-        {{ plugin_version.plugin.description }}
-    </sub>
-    <form action="/feed/unsubscribe/{{ plugin_version.id }}" method="post">
-    {% csrf_token %}
-    <button type="submit">Unsubscribe</button>
-    </form>
-</li>
-{% endfor %}
+    {% for plugin_version in subscriptions %}
+    <li>
+        <h3>
+            {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
+        </h3>
+        <sub>
+            {{ plugin_version.plugin.description }}
+        </sub>
+        <form action="/feed/unsubscribe/{{ plugin_version.id }}" method="post">
+            {% csrf_token %}
+            <button type="submit">Unsubscribe</button>
+        </form>
+    </li>
+    {% endfor %}
 </ul>
 <h2>Updates</h2>
 {% for old_version, new_version in updates %}
@@ -32,8 +32,8 @@
         <a href="/plugins/view/{{ old_version.id }}">v{{ old_version.major_version }}.{{ old_version.minor_version }}</a> → <a href="/plugins/view/{{ new_version.id }}">v{{ new_version.major_version }}.{{ new_version.minor_version }}</a>
     </p>
     <form action="/feed/update/{{ new_version.id }}" method="post">
-    {% csrf_token %}
-    <button type="submit">Update</button>
+        {% csrf_token %}
+        <button type="submit">Update</button>
     </form>
 </li>
 {% endfor %}

@@ -2,14 +2,14 @@
 {% block content %}
 <h1>Search</h1>
 <form action="/feed/search" method="post">
-{% csrf_token %}
-{{ form }}
-<button type="submit">Search</button>
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit">Search</button>
 </form>
 
-<h2>Results</h2>
-<ul>
-{% for plugin_version in results %}
+<h2>Top Plugins</h2>
+
+{% for plugin_version in top_plugins %}
 <li>
     <h3>
         {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
@@ -21,11 +21,32 @@
     <p>Subscribed</p>
     {% else %}
     <form action="/feed/subscribe/{{ plugin_version.id }}" method="post">
-    {% csrf_token %}
-    <button type="submit">Subscribe</button>
+        {% csrf_token %}
+        <button type="submit">Subscribe</button>
     </form>
     {% endif %}
 </li>
 {% endfor %}
+
+<h2>Results</h2>
+<ul>
+    {% for plugin_version in results %}
+    <li>
+        <h3>
+            {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
+        </h3>
+        <sub>
+            {{ plugin_version.plugin.description }}
+        </sub>
+        {% if plugin_version.plugin in subscribed %}
+        <p>Subscribed</p>
+        {% else %}
+        <form action="/feed/subscribe/{{ plugin_version.id }}" method="post">
+            {% csrf_token %}
+            <button type="submit">Subscribe</button>
+        </form>
+        {% endif %}
+    </li>
+    {% endfor %}
 </ul>
 {% endblock %}

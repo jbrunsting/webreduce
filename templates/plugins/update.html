@@ -4,16 +4,16 @@
 <h1>{{ plugin.name }}</h1>
 <h2>Owners</h2>
 <ul>
-{% for owner in plugin.owners.all %}
-<li>{{ owner }}</li>
-{% endfor %}
+    {% for owner in plugin.owners.all %}
+    <li>{{ owner }}</li>
+    {% endfor %}
 </ul>
 {% if error is not None %}
 <p>Error: {{ error }}</p>
 {% endif %}
 <form method="post">
-{% csrf_token %}
-{{form}}
-<button type="submit">Submit</button>
+    {% csrf_token %}
+    {{form}}
+    <button type="submit">Submit</button>
 </form>
 {% endblock %}
