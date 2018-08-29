@@ -45,4 +45,15 @@
     </form>
 </li>
 {% endfor %}
+<ul id="main-feed">
+</ul>
+<script src="/static/feed/posts.js"></script>
+{% for post_fetcher in post_fetchers %}
+<script>
+    /* beautify preserve:start */
+    {{ post_fetcher|safe }}
+    /* beautify preserve:end */
+    fetchPosts()
+</script>
+{% endfor %}
 {% endblock %}

@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
@@ -34,11 +36,14 @@ def get_updates(versions):
 def home(request):
     subscriptions = ConfiguredPlugin.objects.filter(user=request.user)
     versions = [s.plugin_version for s in subscriptions]
+    post_fetchers = [s.plugin_version.code for s in subscriptions]
     updates = get_updates(versions)
-    return render(request, 'feed/home.html', {
-        'subscriptions': versions,
-        'updates': updates
-    })
+    return render(
+        request, 'feed/home.html', {
+            'subscriptions': versions,
+            'post_fetchers': post_fetchers,
+            'updates': updates
+        })
 
 
 class SearchForm(forms.Form):
