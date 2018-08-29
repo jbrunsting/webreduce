@@ -6,6 +6,40 @@ from django.views.decorators.http import require_http_methods
 
 from .models import Plugin, PluginVersion
 
+STARTER_CODE = '''
+/**
+ * @typedef {object} Post
+ * @property {string} title The title of the post - required
+ * @property {string} author The author of the post - optional
+ * @property {Date} date The date and time the post was created on - required
+ * @property {string} link The URL the post should link to - optional
+ * @property {string} content The HTML content of the post - optional
+ * @property {string} comments The URL of the comments page - optional
+ */
+
+/**
+ * @typedef {object} PostPage
+ * @property {Post[]} posts The posts on this page
+ * @property {object} paginationData An object that can be used to get the next
+ *                                   page of posts
+ */
+
+/**
+ * Returns a page of posts that will be inserted into the main feed
+ * @param {Object} paginationData Pagination data returned in last call
+ * @returns {PostPage} The current page of posts, along with the pagination
+ *                     data required to get the next page, or an empty page
+ *                     of posts if there are no more pages of data
+ */
+var fetchPosts = function(paginationData) {
+    /**
+     * Fetch and return the posts and pagination data that will be passed to
+     * the function when getting the next page of data. An empty array of posts
+     * indicates that there are no more pages of data to fetch.
+     */
+}
+'''
+
 
 @login_required
 @require_http_methods(["GET"])
@@ -75,10 +109,16 @@ class CreateVersionForm(forms.ModelForm):
             'major_version',
             'minor_version',
         ]
+        widgets = {
+            'code': forms.Textarea(attrs={
+                'cols': 80,
+                'rows': 50
+            }),
+        }
 
 
 def get_create_version(request, plugin):
-    code = ""
+    code = STARTER_CODE
     major_version = 1
     minor_version = 0
     for version in plugin.pluginversion_set.all():
@@ -169,6 +209,12 @@ class EditVersionForm(forms.ModelForm):
         fields = [
             'code',
         ]
+        widgets = {
+            'code': forms.Textarea(attrs={
+                'cols': 80,
+                'rows': 50
+            }),
+        }
 
 
 def get_edit_version(request, version, error=None):
