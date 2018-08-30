@@ -15,9 +15,9 @@
         <h3>
             {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
         </h3>
-        <sub>
+        <p>
             {{ plugin_version.plugin.description }}
-        </sub>
+        </p>
         {% if plugin_version.plugin in subscribed %}
         <p>Subscribed</p>
         {% else %}
@@ -37,9 +37,9 @@
         <h3>
             {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
         </h3>
-        <sub>
+        <p>
             {{ plugin_version.plugin.description }}
-        </sub>
+        </p>
         {% if plugin_version.plugin in subscribed %}
         <p>Subscribed</p>
         {% else %}

@@ -11,9 +11,9 @@
                 {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
             </a>
         </h3>
-        <sub>
+        <p>
             {{ plugin_version.plugin.description }}
-        </sub>
+        </p>
         <form action="/feed/unsubscribe/{{ plugin_version.id }}" method="post">
             {% csrf_token %}
             <button type="submit">Unsubscribe</button>
@@ -27,9 +27,9 @@
     <h3>
         {{ old_version.plugin.name }}
     </h3>
-    <sub>
+    <p>
         {{ old_version.plugin.description }}
-    </sub>
+    </p>
     <p>
         <a href="/plugins/view/{{ old_version.id }}">
             v{{ old_version.major_version }}.{{ old_version.minor_version }}
@@ -53,13 +53,14 @@
 </script>
 {% for post_fetcher in post_fetchers %}
 <script>
-    var fetchPosts = function() {};
-    /* beautify preserve:start */
-    {{ post_fetcher|safe }}
-    /* beautify preserve:end */
-    if (fetchPosts) {
-        postFetchers.push(fetchPosts);
-    }
+    (function() {
+        /* beautify preserve:start */
+        {{ post_fetcher|safe }}
+        /* beautify preserve:end */
+        if (fetchPosts) {
+            postFetchers.push(fetchPosts);
+        }
+    })();
 </script>
 {% endfor %}
 <script>

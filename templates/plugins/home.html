@@ -5,7 +5,7 @@
 <p><a href="/plugins/create">New plugin</a></p>
 {% for plugin, versions in plugins.items %}
 <h2>{{ plugin.name }}</h2>
-<sub>{{ plugin.description }}</sub>
+<p>{{ plugin.description }}</p>
 <p><a href="/plugins/update/{{ plugin.id }}">New version</a></p>
 {% for version in versions %}
 <h3><a href="/plugins/view/{{ version.id }}">v{{ version.major_version }}.{{ version.minor_version }}</a></h3>
