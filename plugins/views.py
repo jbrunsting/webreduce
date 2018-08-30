@@ -31,7 +31,7 @@ STARTER_CODE = '''
  *                     data required to get the next page, or an empty page
  *                     of posts if there are no more pages of data
  */
-var fetchPosts = function(paginationData) {
+function fetchPosts(paginationData) {
     /**
      * Fetch and return the posts and pagination data that will be passed to
      * the function when getting the next page of data. An empty array of posts

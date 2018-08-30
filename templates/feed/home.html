@@ -48,12 +48,25 @@
 <ul id="main-feed">
 </ul>
 <script src="/static/feed/posts.js"></script>
+<script>
+    var postFetchers = []
+</script>
 {% for post_fetcher in post_fetchers %}
 <script>
+    var fetchPosts = function() {};
     /* beautify preserve:start */
     {{ post_fetcher|safe }}
     /* beautify preserve:end */
-    fetchPosts()
+    if (fetchPosts) {
+        postFetchers.push(fetchPosts);
+    }
 </script>
 {% endfor %}
+<script>
+    var ul = document.getElementById("main-feed");
+    var posts = getPostsHtml(postFetchers);
+    for (var i = 0; i < posts.length; ++i) {
+        ul.appendChild(posts[i]);
+    }
+</script>
 {% endblock %}
