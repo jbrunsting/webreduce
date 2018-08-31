@@ -47,6 +47,8 @@
 {% endfor %}
 <ul id="main-feed">
 </ul>
+<button id="prev-page">Previous</button>
+<button id="next-page">Next</button>
 <script src="/static/feed/posts.js"></script>
 <script>
     var postFetchers = []
@@ -64,11 +66,66 @@
 </script>
 {% endfor %}
 <script>
+    var posts = [];
+    var currentPage = -1;
+    var postsPerPage = 25;
+    var morePosts = true;
     var ul = document.getElementById("main-feed");
+    var prev = document.getElementById("prev-page");
+    var next = document.getElementById("next-page");
+    prev.disabled = true;
     setPostFetchers(postFetchers);
-    var posts = getPostsHtml(25);
-    for (var i = 0; i < posts.length; ++i) {
-        ul.appendChild(posts[i]);
+
+    function getMorePosts() {
+        newPosts = getPostsHtml(postsPerPage);
+        if (!newPosts || newPosts.length === 0) {
+            morePosts = false;
+        }
+        posts = posts.concat(newPosts);
     }
+
+    function refreshPage() {
+        while (ul.firstChild) {
+            ul.removeChild(ul.firstChild);
+        }
+
+        for (var i = 0; i < postsPerPage; ++i) {
+            postIndex = currentPage * postsPerPage + i;
+            if (postIndex >= posts.length) {
+                return;
+            }
+            ul.appendChild(posts[postIndex]);
+        }
+    }
+
+    function prevPage() {
+        next.disabled = false;
+        currentPage -= 1;
+        if (currentPage == 0) {
+            prev.disabled = true;
+        }
+        refreshPage();
+    }
+
+    function nextPage() {
+        currentPage += 1;
+        if (currentPage > 0) {
+            prev.disabled = false;
+        }
+        while ((currentPage + 1) * postsPerPage >= posts.length) {
+            if (morePosts) {
+                getMorePosts();
+            } else {
+                next.disabled = true;
+                break;
+            }
+        }
+        refreshPage();
+    }
+
+    nextPage();
+
+    prev.onclick = prevPage;
+    next.onclick = nextPage;
 </script>
 {% endblock %}
