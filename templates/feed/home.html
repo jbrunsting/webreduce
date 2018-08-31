@@ -65,7 +65,8 @@
 {% endfor %}
 <script>
     var ul = document.getElementById("main-feed");
-    var posts = getPostsHtml(postFetchers);
+    setPostFetchers(postFetchers);
+    var posts = getPostsHtml(25);
     for (var i = 0; i < posts.length; ++i) {
         ul.appendChild(posts[i]);
     }

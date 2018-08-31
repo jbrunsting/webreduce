@@ -1,22 +1,67 @@
-previousResults = []
+var postFetchers = []
+var previousResults = []
+var unusedPosts = []
+var noMorePosts = []
 
-function getPosts(postFetchers) {
-    var posts = [];
+function setPostFetchers(fetchers) {
+    postFetchers = fetchers;
     for (var i = 0; i < postFetchers.length; ++i) {
-        var result;
-        if (previousResults.length == 0) {
-            result = postFetchers[i](previousResults[i]);
-        } else {
-            result = postFetchers[i]();
-        }
+        unusedPosts[i] = [];
+        noMorePosts[i] = false;
+        fetchMorePosts(i);
+    }
+}
 
-        previousResults[i] = result;
-        if (result && Array.isArray(result.posts)) {
-            posts = posts.concat(result.posts);
-        }
+function fetchMorePosts(fetcherIndex) {
+    if (noMorePosts[fetcherIndex]) {
+        return;
     }
 
-    return posts;
+    var result;
+    if (previousResults[fetcherIndex] && previousResults[fetcherIndex].paginationData) {
+        result = postFetchers[fetcherIndex](previousResults[fetcherIndex].paginationData);
+    } else if (previousResults[fetcherIndex]) {
+        // If there is no pagination data, and we already made a call, don't
+        // try and get the next page since the request must not be paginated
+        noMorePosts[fetcherIndex] = true;
+        return;
+    } else {
+        result = postFetchers[fetcherIndex]();
+    }
+
+    if (!result || !Array.isArray(result.posts) || result.posts.length == 0) {
+        noMorePosts[fetcherIndex] = true;
+        return;
+    }
+
+    previousResults[fetcherIndex] = result;
+
+    var filteredPosts = []
+    for (var i = 0; i < result.posts.length; ++i) {
+        post = result.posts[i];
+        if (!post.title) {
+            console.log("Post has no title: " + JSON.stringify(post));
+            continue;
+        }
+
+        if (!post.date instanceof Date || isNaN(post.date)) {
+            console.log("Post has an invalid date" + JSON.stringify(post));
+            continue;
+        }
+
+        filteredPosts.push(post);
+    }
+
+    if (filteredPosts.length == 0) {
+        noMorePosts[fetcherIndex] = true
+        return;
+    }
+
+    filteredPosts.sort(function(a, b) {
+        return b.date - a.date;
+    });
+
+    unusedPosts[fetcherIndex] = unusedPosts[fetcherIndex].concat(filteredPosts);
 }
 
 function getPostHtml(post) {
@@ -62,33 +107,37 @@ function getPostHtml(post) {
     return postContent;
 }
 
-function getPostsHtml(postFetchers) {
-    var posts = getPosts(postFetchers);
-    var filteredPosts = []
+function getNextPost() {
+    var postIndex;
+    for (var i = 0; i < postFetchers.length; ++i) {
+        if (unusedPosts[i].length == 0) {
+            fetchMorePosts(i);
+        }
 
-    console.log("Posts are " + JSON.stringify(posts));
-    for (var i = 0; i < posts.length; ++i) {
-        post = posts[i];
-        if (!post.title) {
-            console.log("Post has no title: " + JSON.stringify(post));
+        if (noMorePosts[i]) {
             continue;
         }
 
-        if (!post.date instanceof Date || isNaN(post.date)) {
-            console.log("Post has an invalid date" + JSON.stringify(post));
-            continue;
+        if (!postIndex || unusedPosts[i][0].date < unusedPosts[postIndex][0].date) {
+            postIndex = i;
         }
-
-        filteredPosts.push(post);
     }
 
-    filteredPosts.sort(function(a, b) {
-        return b.date - a.date;
-    });
+    if (!postIndex) {
+        return;
+    }
 
+    return unusedPosts[postIndex].pop();
+}
+
+function getPostsHtml(count) {
     var postsContent = [];
-    for (var i = 0; i < filteredPosts.length; ++i) {
-        postsContent.push(getPostHtml(filteredPosts[i]));
+    for (var i = 0; i < count; ++i) {
+        var nextPost = getNextPost();
+        if (!nextPost) {
+            return postsContent;
+        }
+        postsContent.push(getPostHtml(nextPost));
     }
 
     return postsContent;

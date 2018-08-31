@@ -21,15 +21,16 @@ STARTER_CODE = '''
  * @typedef {object} PostPage
  * @property {Post[]} posts The posts on this page
  * @property {object} paginationData An object that can be used to get the next
- *                                   page of posts
+ *                                   page of posts - optional
  */
 
 /**
- * Returns a page of posts that will be inserted into the main feed
- * @param {Object} paginationData Pagination data returned in last call
+ * Returns a page of posts that will be inserted into the main feed, where the
+ *     posts should be ordered in chronological order
+ * @param {Object} paginationData Pagination data returned in last request
  * @returns {PostPage} The current page of posts, along with the pagination
- *                     data required to get the next page, or an empty page
- *                     of posts if there are no more pages of data
+ *                     data required to get the next page, or no paginationData
+ *                     if there are no more pages of posts to retrieve
  */
 function fetchPosts(paginationData) {
     /**
