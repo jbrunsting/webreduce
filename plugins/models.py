@@ -3,7 +3,7 @@ from django.db import models
 
 
 class Plugin(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, unique=True)
     description = models.CharField(max_length=2048)
     owners = models.ManyToManyField(User)
 

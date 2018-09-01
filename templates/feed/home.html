@@ -2,9 +2,10 @@
 
 {% block content %}
 <h1>Feed</h1>
+<div id="modal-container"></div>
 <p><a href="/feed/search">Find new plugin</a></p>
 <ul>
-    {% for plugin_version in subscriptions %}
+    {% for plugin_version in plugin_versions %}
     <li>
         <h3>
             <a href="/plugins/view/{{ plugin_version.id }}">
@@ -18,6 +19,7 @@
             {% csrf_token %}
             <button type="submit">Unsubscribe</button>
         </form>
+        <button id="configure-{{ plugin_version.id }}">Configure</button>
     </li>
     {% endfor %}
 </ul>
@@ -51,21 +53,30 @@
 <button id="next-page">Next</button>
 <script src="/static/feed/posts.js"></script>
 <script>
-    var postFetchers = []
+    var pluginFunctions = {}
 </script>
-{% for post_fetcher in post_fetchers %}
+{% for plugin_version in plugin_versions %}
 <script>
     (function() {
         /* beautify preserve:start */
-        {{ post_fetcher|safe }}
+        {{ plugin_version.code|safe }}
         /* beautify preserve:end */
-        if (fetchPosts) {
-            postFetchers.push(fetchPosts);
+        var functions = {};
+        if (typeof fetchPosts != 'undefined') {
+            functions["fetchPosts"] = fetchPosts;
         }
+
+        if (typeof getConfigModal !== 'undefined') {
+            functions["getConfigModal"] = getConfigModal;
+        }
+
+
+        pluginFunctions["{{ plugin_version.id }}"] = functions;
     })();
 </script>
 {% endfor %}
 <script>
+    // TODO: Move to static file?
     var posts = [];
     var currentPage = -1;
     var postsPerPage = 25;
@@ -74,6 +85,17 @@
     var prev = document.getElementById("prev-page");
     var next = document.getElementById("next-page");
     prev.disabled = true;
+
+    var postFetchers = [];
+    /* beautify preserve:start */
+    {% for plugin_version in plugin_versions %}
+    /* beautify preserve:end */
+    if (pluginFunctions["{{ plugin_version.id }}"]) {
+        postFetchers.push(pluginFunctions["{{ plugin_version.id }}"]["fetchPosts"]);
+    }
+    /* beautify preserve:start */
+    {% endfor %}
+    /* beautify preserve:end */
     setPostFetchers(postFetchers);
 
     function getMorePosts() {
@@ -127,5 +149,44 @@
 
     prev.onclick = prevPage;
     next.onclick = nextPage;
+
+    /* beautify preserve:start */
+    {% for subscription in subscriptions %}
+    /* beautify preserve:end */
+    var configBtn = document.getElementById("configure-{{ subscription.plugin_version.id }}");
+
+    // TODO: Store config locally, pass it to the corresponding post fetcher
+    // TODO: Check if every plugin is configured, show the configuration modal if it is not
+    configBtn.onclick = function() {
+        var id = "{{ subscription.plugin_version.id }}";
+        var config
+        if ("{{ subscription.config }}" !== "") {
+            config = JSON.parse("{{ subscription.config }}");
+        }
+        var modal = document.getElementById("modal-container");
+
+        var saveConfig = function(config) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "/feed/configure/{{ subscription.id }}", true);
+            xhttp.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            xhttp.send(JSON.stringify(config));
+            while (modal.firstChild) {
+                modal.removeChild(modal.firstChild);
+            }
+        }
+
+        while (modal.firstChild) {
+            modal.removeChild(modal.firstChild);
+        }
+
+        if (pluginFunctions[id]) {
+            var configModal = pluginFunctions[id]["getConfigModal"](config, saveConfig);
+            modal.appendChild(configModal);
+        }
+    }
+
+    /* beautify preserve:start */
+    {% endfor %}
+    /* beautify preserve:end */
 </script>
 {% endblock %}

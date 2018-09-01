@@ -7,8 +7,7 @@ function setPostFetchers(fetchers) {
     postFetchers = fetchers;
     for (var i = 0; i < postFetchers.length; ++i) {
         unusedPosts[i] = [];
-        noMorePosts[i] = false;
-        fetchMorePosts(i);
+        noMorePosts[i] = false; fetchMorePosts(i);
     }
 }
 

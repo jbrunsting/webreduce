@@ -3,8 +3,11 @@ import json
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+
 from plugins.models import Plugin, PluginVersion
 
 from .models import ConfiguredPlugin
@@ -35,13 +38,12 @@ def get_updates(versions):
 @require_http_methods(["GET"])
 def home(request):
     subscriptions = ConfiguredPlugin.objects.filter(user=request.user)
-    versions = [s.plugin_version for s in subscriptions]
-    post_fetchers = [s.plugin_version.code for s in subscriptions]
-    updates = get_updates(versions)
+    plugin_versions = [s.plugin_version for s in subscriptions]
+    updates = get_updates(plugin_versions)
     return render(
         request, 'feed/home.html', {
-            'subscriptions': versions,
-            'post_fetchers': post_fetchers,
+            'subscriptions': subscriptions,
+            'plugin_versions': plugin_versions,
             'updates': updates
         })
 
@@ -169,3 +171,52 @@ def update(request, plugin_version_id):
         configuration.plugin_version = new_version
         configuration.save()
     return redirect('/feed')
+
+
+@login_required
+@require_http_methods(["POST"])
+def configure(request, configuration_id):
+    if not ConfiguredPlugin.objects.filter(pk=configuration_id).exists():
+        return render(request, 'feeds/configuration_not_found.html', {
+            'configuration_id': configuration_id,
+        })
+
+    configuration = ConfiguredPlugin.objects.get(pk=configuration_id)
+    configuration.config = request.body.decode('utf-8')
+    configuration.save()
+
+    return redirect('/feed')
+
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def external(request, plugin_name):
+    if request.method == "POST":
+        if not Plugin.objects.filter(name=plugin_name).exists():
+            return HttpResponse(status=404)
+
+        external_request = ExternalRequest(
+            plugin=Plugin.objects.get(name=plugin_name),
+            url=request.build_absolute_uri(),
+            body=request.body.decode('utf-8'))
+
+        return HttpResponse(status=200)
+
+    if not request.user.is_authenticated():
+        return HttpResponse(status=401)
+
+    if not Plugin.objects.filter(name=plugin_name).exists():
+        return HttpResponse(status=404)
+
+    plugin = Plugin.objects.get(name=plugin_name)
+
+    if not ExternalRequest.objects.filter(plugin=plugin).exists():
+        return HttpResponse(status=404)
+
+    external_request = ExternalRequest.objects.get(plugin=plugin)
+
+    return JsonResponse({
+        'timestamp': external_request.timestamp,
+        'url': external_request.url,
+        'body': external_request.body,
+    })
