@@ -5,21 +5,21 @@
 <div id="modal-container"></div>
 <p><a href="/feed/search">Find new plugin</a></p>
 <ul>
-    {% for plugin_version in plugin_versions %}
+    {% for subscription in subscriptions %}
     <li>
         <h3>
-            <a href="/plugins/view/{{ plugin_version.id }}">
-                {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
+            <a href="/plugins/view/{{ subscription.plugin_version.id }}">
+                {{ subscription.plugin_version.plugin.name }} v{{ subscription.plugin_version.major_version }}.{{ subscription.plugin_version.minor_version }}
             </a>
         </h3>
         <p>
-            {{ plugin_version.plugin.description }}
+            {{ subscription.plugin_version.plugin.description }}
         </p>
-        <form action="/feed/unsubscribe/{{ plugin_version.id }}" method="post">
+        <form action="/feed/unsubscribe/{{ subscription.plugin_version.id }}" method="post">
             {% csrf_token %}
             <button type="submit">Unsubscribe</button>
         </form>
-        <button id="configure-{{ plugin_version.id }}">Configure</button>
+        <button id="configure-{{ subscription.id }}">Configure</button>
     </li>
     {% endfor %}
 </ul>
@@ -53,25 +53,23 @@
 <button id="next-page">Next</button>
 <script src="/static/feed/posts.js"></script>
 <script>
-    var pluginFunctions = {}
+    var subscriptions = {}
 </script>
-{% for plugin_version in plugin_versions %}
+{% for subscription in subscriptions %}
 <script>
     (function() {
+        var subscriptionId = "{{ subscription.id }}";
         /* beautify preserve:start */
-        {{ plugin_version.code|safe }}
+        {{ subscription.plugin_version.code|safe }}
         /* beautify preserve:end */
-        var functions = {};
-        if (typeof fetchPosts != 'undefined') {
-            functions["fetchPosts"] = fetchPosts;
+        subscriptions[subscriptionId] = {};
+        if (typeof fetchPosts != "undefined") {
+            subscriptions[subscriptionId]["fetchPosts"] = fetchPosts;
         }
 
         if (typeof getConfigModal !== 'undefined') {
-            functions["getConfigModal"] = getConfigModal;
+            subscriptions[subscriptionId]["getConfigModal"] = getConfigModal;
         }
-
-
-        pluginFunctions["{{ plugin_version.id }}"] = functions;
     })();
 </script>
 {% endfor %}
@@ -88,10 +86,10 @@
 
     var postFetchers = [];
     /* beautify preserve:start */
-    {% for plugin_version in plugin_versions %}
+    {% for subscription in subscriptions %}
     /* beautify preserve:end */
-    if (pluginFunctions["{{ plugin_version.id }}"]) {
-        postFetchers.push(pluginFunctions["{{ plugin_version.id }}"]["fetchPosts"]);
+    if (subscriptions["{{ subscription.id }}"] && subscriptions["{{ subscription.id }}"]["fetchPosts"]) {
+        postFetchers.push(subscriptions["{{ subscription.id }}"]["fetchPosts"]);
     }
     /* beautify preserve:start */
     {% endfor %}
@@ -153,16 +151,18 @@
     /* beautify preserve:start */
     {% for subscription in subscriptions %}
     /* beautify preserve:end */
-    var configBtn = document.getElementById("configure-{{ subscription.plugin_version.id }}");
+    var configBtn = document.getElementById("configure-{{ subscription.id }}");
 
     // TODO: Store config locally, pass it to the corresponding post fetcher
     // TODO: Check if every plugin is configured, show the configuration modal if it is not
     configBtn.onclick = function() {
-        var id = "{{ subscription.plugin_version.id }}";
+        var subscriptionId = "{{ subscription.id }}";
         var config
-        if ("{{ subscription.config }}" !== "") {
-            config = JSON.parse("{{ subscription.config }}");
-        }
+        /* beautify preserve:start */
+        {% if subscription.config != "" %}
+            config = {{ subscription.config|safe }};
+        {% endif %}
+        /* beautify preserve:end */
         var modal = document.getElementById("modal-container");
 
         var saveConfig = function(config) {
@@ -179,8 +179,8 @@
             modal.removeChild(modal.firstChild);
         }
 
-        if (pluginFunctions[id]) {
-            var configModal = pluginFunctions[id]["getConfigModal"](config, saveConfig);
+        if (subscriptions[subscriptionId]) {
+            var configModal = subscriptions[subscriptionId]["getConfigModal"](config, saveConfig);
             modal.appendChild(configModal);
         }
     }

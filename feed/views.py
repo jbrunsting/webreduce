@@ -38,12 +38,10 @@ def get_updates(versions):
 @require_http_methods(["GET"])
 def home(request):
     subscriptions = ConfiguredPlugin.objects.filter(user=request.user)
-    plugin_versions = [s.plugin_version for s in subscriptions]
     updates = get_updates(plugin_versions)
     return render(
         request, 'feed/home.html', {
             'subscriptions': subscriptions,
-            'plugin_versions': plugin_versions,
             'updates': updates
         })
 
