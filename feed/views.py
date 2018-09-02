@@ -39,11 +39,10 @@ def get_updates(versions):
 def home(request):
     subscriptions = ConfiguredPlugin.objects.filter(user=request.user)
     updates = get_updates(plugin_versions)
-    return render(
-        request, 'feed/home.html', {
-            'subscriptions': subscriptions,
-            'updates': updates
-        })
+    return render(request, 'feed/home.html', {
+        'subscriptions': subscriptions,
+        'updates': updates
+    })
 
 
 class SearchForm(forms.Form):

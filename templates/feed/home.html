@@ -52,38 +52,37 @@
 <button id="prev-page">Previous</button>
 <button id="next-page">Next</button>
 <script src="/static/feed/posts.js"></script>
+<script src="/static/feed/pagination.js"></script>
 <script>
     var subscriptions = {}
 </script>
 {% for subscription in subscriptions %}
 <script>
+    var subscription = {};
+
     (function() {
-        var subscriptionId = "{{ subscription.id }}";
         /* beautify preserve:start */
         {{ subscription.plugin_version.code|safe }}
         /* beautify preserve:end */
-        subscriptions[subscriptionId] = {};
+        subscription = {};
         if (typeof fetchPosts != "undefined") {
-            subscriptions[subscriptionId]["fetchPosts"] = fetchPosts;
+            subscription["fetchPosts"] = fetchPosts;
         }
 
-        if (typeof getConfigModal !== 'undefined') {
-            subscriptions[subscriptionId]["getConfigModal"] = getConfigModal;
+        if (typeof getConfigModal !== "undefined") {
+            subscription["getConfigModal"] = getConfigModal;
         }
     })();
+
+    /* beautify preserve:start */
+    {% if subscription.config != "" %}
+        subscription["config"] = {{ subscription.config|safe }};
+    {% endif %}
+    /* beautify preserve:end */
+    subscriptions["{{ subscription.id }}"] = subscription;
 </script>
 {% endfor %}
 <script>
-    // TODO: Move to static file?
-    var posts = [];
-    var currentPage = -1;
-    var postsPerPage = 25;
-    var morePosts = true;
-    var ul = document.getElementById("main-feed");
-    var prev = document.getElementById("prev-page");
-    var next = document.getElementById("next-page");
-    prev.disabled = true;
-
     var postFetchers = [];
     /* beautify preserve:start */
     {% for subscription in subscriptions %}
@@ -96,57 +95,18 @@
     /* beautify preserve:end */
     setPostFetchers(postFetchers);
 
-    function getMorePosts() {
-        newPosts = getPostsHtml(postsPerPage);
-        if (!newPosts || newPosts.length === 0) {
-            morePosts = false;
-        }
-        posts = posts.concat(newPosts);
-    }
-
-    function refreshPage() {
+    var ul = document.getElementById("main-feed");
+    var nextBtn = document.getElementById("next-page");
+    var prevBtn = document.getElementById("prev-page");
+    setupPagination(nextBtn, prevBtn, function(posts) {
         while (ul.firstChild) {
             ul.removeChild(ul.firstChild);
         }
 
-        for (var i = 0; i < postsPerPage; ++i) {
-            postIndex = currentPage * postsPerPage + i;
-            if (postIndex >= posts.length) {
-                return;
-            }
-            ul.appendChild(posts[postIndex]);
-        }
-    }
-
-    function prevPage() {
-        next.disabled = false;
-        currentPage -= 1;
-        if (currentPage == 0) {
-            prev.disabled = true;
-        }
-        refreshPage();
-    }
-
-    function nextPage() {
-        currentPage += 1;
-        if (currentPage > 0) {
-            prev.disabled = false;
-        }
-        while ((currentPage + 1) * postsPerPage >= posts.length) {
-            if (morePosts) {
-                getMorePosts();
-            } else {
-                next.disabled = true;
-                break;
-            }
-        }
-        refreshPage();
-    }
-
-    nextPage();
-
-    prev.onclick = prevPage;
-    next.onclick = nextPage;
+        posts.forEach(function(post) {
+            ul.appendChild(post);
+        });
+    });
 
     /* beautify preserve:start */
     {% for subscription in subscriptions %}
