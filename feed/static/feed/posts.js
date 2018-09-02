@@ -144,7 +144,9 @@ function PostGenerator() {
             }
 
             handler = {};
-            handler.fetchPosts = subscription.fetchPosts;
+            handler.fetchPosts = function(paginationData) {
+                return subscription.fetchPosts(subscription.config, paginationData);
+            }
             handler.unusedPosts = [];
             handler.noMorePosts = false;
             subscriptionHandlers.push(handler);

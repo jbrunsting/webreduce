@@ -53,17 +53,30 @@
 <button id="next-page">Next</button>
 <script src="/static/feed/posts.js"></script>
 <script src="/static/feed/pagination.js"></script>
+<script src="/static/feed/configuration.js"></script>
 <script>
-    var subscriptions = {}
+    var subscriptions = []
 </script>
 {% for subscription in subscriptions %}
 <script>
     var subscription = {};
 
+    /* beautify preserve:start */
+    {% if subscription.config != "" %}
+        subscription.config = {{ subscription.config|safe }};
+    {% endif %}
+    /* beautify preserve:end */
+
     (function() {
         /* beautify preserve:start */
         {{ subscription.plugin_version.code|safe }}
         /* beautify preserve:end */
+
+        if (typeof validateConfig !== "undefined") {
+            subscription.configValid = validateConfig(subscription.config);
+        } else {
+            subscription.configValid = !!subscription.config;
+        }
 
         if (typeof getConfigModal !== "undefined") {
             subscription.getConfigModal = getConfigModal;
@@ -74,24 +87,14 @@
         }
     })();
 
-    /* beautify preserve:start */
-    {% if subscription.config != "" %}
-        subscription.config = {{ subscription.config|safe }};
-    {% endif %}
-    /* beautify preserve:end */
-
     subscription.id = "{{ subscription.id }}";
-    subscriptions["{{ subscription.id }}"] = subscription;
+    subscriptions.push(subscription);
 </script>
 {% endfor %}
 <script>
     postGenerator = PostGenerator();
 
-    subscriptionValues = [];
-    Object.keys(subscriptions).forEach(function(subscriptionId) {
-        subscriptionValues.push(subscriptions[subscriptionId]);
-    });
-    postGenerator.setSubscriptions(subscriptionValues);
+    postGenerator.setSubscriptions(subscriptions);
 
     var ul = document.getElementById("main-feed");
     var nextBtn = document.getElementById("next-page");
@@ -106,33 +109,21 @@
         });
     });
 
-    Object.keys(subscriptions).forEach(function(subscriptionId) {
-        var subscription = subscriptions[subscriptionId];
-        var configBtn = document.getElementById("configure-" + subscriptionId);
+    var modalContainer = document.getElementById("modal-container");
 
-        // TODO: Check if every plugin is configured, show the configuration modal if it is not
-        configBtn.onclick = function() {
-            var modal = document.getElementById("modal-container");
-
-            var saveConfig = function(config) {
-                var xhttp = new XMLHttpRequest();
-                xhttp.open("POST", "/feed/configure/" + subscriptionId, true);
-                xhttp.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-                xhttp.send(JSON.stringify(config));
-                while (modal.firstChild) {
-                    modal.removeChild(modal.firstChild);
-                }
-            }
-
-            while (modal.firstChild) {
-                modal.removeChild(modal.firstChild);
-            }
-
-            if (subscription) {
-                var configModal = subscription.getConfigModal(subscription.config, saveConfig);
-                modal.appendChild(configModal);
-            }
+    function setModal(modal) {
+        while (modalContainer.firstChild) {
+            modalContainer.removeChild(modalContainer.firstChild);
         }
+
+        if (modal) {
+            modalContainer.appendChild(modal);
+        }
+    }
+
+    subscriptions.forEach(function(subscription) {
+        var configBtn = document.getElementById("configure-" + subscription.id);
+        setupConfiguration(subscription, configBtn, setModal, "{{ csrf_token }}");
     });
 </script>
 {% endblock %}

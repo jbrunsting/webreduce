@@ -8,6 +8,19 @@ from .models import Plugin, PluginVersion
 
 STARTER_CODE = '''
 /**
+ * Returns true if the provided config is valid for this plugin version
+ * @param {Object} config The configuration being validated
+ * @returns {boolean} True if the config is valid, false if it is not
+ */
+function validateConfig(config) {
+    /**
+     * Check that the config has the required structure and fields
+     */
+
+    return !!config;
+}
+
+/**
  * @callback callback
  * @param {Object} configData The configuration data that should be stored and
  *                           passed to the fetchPosts function
@@ -50,8 +63,7 @@ function getConfigModal(previousConfig, saveConfig) {
  */
 
 /**
- * Returns a page of posts that will be inserted into the main feed, where the
- *     posts should be ordered in chronological order
+ * Returns a page of posts that will be inserted into the main feed
  * @param {Object} configData Configuration JSON most recently passed to the
  *                            saveConfiguration function in getConfigModal
  * @param {Object} paginationData Pagination data returned in last request
@@ -274,6 +286,7 @@ def post_edit_version(request, version_id):
     else:
         error = "Invalid form"
 
+    # TODO: This messes up the browser history, maybe make the front end async?
     return render(request, 'plugins/edit.html', {
         'version': version,
         'form': form,
