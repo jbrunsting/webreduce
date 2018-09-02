@@ -1,13 +1,13 @@
 var POSTS_PER_PAGE = 25;
 
-function setupPagination(nextBtn, prevBtn, setPosts) {
+function setupPagination(postGenerator, nextBtn, prevBtn, setPosts) {
     var posts = [];
     var currentPage = -1;
     var morePosts = true;
     prevBtn.disabled = true;
 
     function getMorePosts() {
-        newPosts = getPostsHtml(POSTS_PER_PAGE);
+        newPosts = postGenerator.getPostsHtml(POSTS_PER_PAGE);
         if (!newPosts || newPosts.length === 0) {
             morePosts = false;
         }

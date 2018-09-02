@@ -64,41 +64,39 @@
         /* beautify preserve:start */
         {{ subscription.plugin_version.code|safe }}
         /* beautify preserve:end */
-        subscription = {};
-        if (typeof fetchPosts != "undefined") {
-            subscription["fetchPosts"] = fetchPosts;
-        }
 
         if (typeof getConfigModal !== "undefined") {
-            subscription["getConfigModal"] = getConfigModal;
+            subscription.getConfigModal = getConfigModal;
+        }
+
+        if (typeof fetchPosts != "undefined") {
+            subscription.fetchPosts = fetchPosts;
         }
     })();
 
     /* beautify preserve:start */
     {% if subscription.config != "" %}
-        subscription["config"] = {{ subscription.config|safe }};
+        subscription.config = {{ subscription.config|safe }};
     {% endif %}
     /* beautify preserve:end */
+
+    subscription.id = "{{ subscription.id }}";
     subscriptions["{{ subscription.id }}"] = subscription;
 </script>
 {% endfor %}
 <script>
-    var postFetchers = [];
-    /* beautify preserve:start */
-    {% for subscription in subscriptions %}
-    /* beautify preserve:end */
-    if (subscriptions["{{ subscription.id }}"] && subscriptions["{{ subscription.id }}"]["fetchPosts"]) {
-        postFetchers.push(subscriptions["{{ subscription.id }}"]["fetchPosts"]);
-    }
-    /* beautify preserve:start */
-    {% endfor %}
-    /* beautify preserve:end */
-    setPostFetchers(postFetchers);
+    postGenerator = PostGenerator();
+
+    subscriptionValues = [];
+    Object.keys(subscriptions).forEach(function(subscriptionId) {
+        subscriptionValues.push(subscriptions[subscriptionId]);
+    });
+    postGenerator.setSubscriptions(subscriptionValues);
 
     var ul = document.getElementById("main-feed");
     var nextBtn = document.getElementById("next-page");
     var prevBtn = document.getElementById("prev-page");
-    setupPagination(nextBtn, prevBtn, function(posts) {
+    setupPagination(postGenerator, nextBtn, prevBtn, function(posts) {
         while (ul.firstChild) {
             ul.removeChild(ul.firstChild);
         }
@@ -108,45 +106,33 @@
         });
     });
 
-    /* beautify preserve:start */
-    {% for subscription in subscriptions %}
-    /* beautify preserve:end */
-    var configBtn = document.getElementById("configure-{{ subscription.id }}");
+    Object.keys(subscriptions).forEach(function(subscriptionId) {
+        var subscription = subscriptions[subscriptionId];
+        var configBtn = document.getElementById("configure-" + subscriptionId);
 
-    // TODO: Store config locally, pass it to the corresponding post fetcher
-    // TODO: Check if every plugin is configured, show the configuration modal if it is not
-    configBtn.onclick = function() {
-        var subscriptionId = "{{ subscription.id }}";
-        var config
-        /* beautify preserve:start */
-        {% if subscription.config != "" %}
-            config = {{ subscription.config|safe }};
-        {% endif %}
-        /* beautify preserve:end */
-        var modal = document.getElementById("modal-container");
+        // TODO: Check if every plugin is configured, show the configuration modal if it is not
+        configBtn.onclick = function() {
+            var modal = document.getElementById("modal-container");
 
-        var saveConfig = function(config) {
-            var xhttp = new XMLHttpRequest();
-            xhttp.open("POST", "/feed/configure/{{ subscription.id }}", true);
-            xhttp.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-            xhttp.send(JSON.stringify(config));
+            var saveConfig = function(config) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("POST", "/feed/configure/" + subscriptionId, true);
+                xhttp.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                xhttp.send(JSON.stringify(config));
+                while (modal.firstChild) {
+                    modal.removeChild(modal.firstChild);
+                }
+            }
+
             while (modal.firstChild) {
                 modal.removeChild(modal.firstChild);
             }
-        }
 
-        while (modal.firstChild) {
-            modal.removeChild(modal.firstChild);
+            if (subscription) {
+                var configModal = subscription.getConfigModal(subscription.config, saveConfig);
+                modal.appendChild(configModal);
+            }
         }
-
-        if (subscriptions[subscriptionId]) {
-            var configModal = subscriptions[subscriptionId]["getConfigModal"](config, saveConfig);
-            modal.appendChild(configModal);
-        }
-    }
-
-    /* beautify preserve:start */
-    {% endfor %}
-    /* beautify preserve:end */
+    });
 </script>
 {% endblock %}

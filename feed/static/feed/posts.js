@@ -1,39 +1,26 @@
-var postFetchers = []
-var previousResults = []
-var unusedPosts = []
-var noMorePosts = []
-
-function setPostFetchers(fetchers) {
-    postFetchers = fetchers;
-    for (var i = 0; i < postFetchers.length; ++i) {
-        unusedPosts[i] = [];
-        noMorePosts[i] = false; fetchMorePosts(i);
-    }
-}
-
-function fetchMorePosts(fetcherIndex) {
-    if (noMorePosts[fetcherIndex]) {
+function getHandlerPosts(handler) {
+    if (handler.noMorePosts) {
         return;
     }
 
     var result;
-    if (previousResults[fetcherIndex] && previousResults[fetcherIndex].paginationData) {
-        result = postFetchers[fetcherIndex](previousResults[fetcherIndex].paginationData);
-    } else if (previousResults[fetcherIndex]) {
+    if (handler.previousResult && handler.previousResult.paginationData) {
+        result = handler.fetchPosts(handler.previousResult.paginationData);
+    } else if (handler.previousResult) {
         // If there is no pagination data, and we already made a call, don't
         // try and get the next page since the request must not be paginated
-        noMorePosts[fetcherIndex] = true;
+        handler.noMorePosts = true;
         return;
     } else {
-        result = postFetchers[fetcherIndex]();
+        result = handler.fetchPosts();
     }
 
     if (!result || !Array.isArray(result.posts) || result.posts.length == 0) {
-        noMorePosts[fetcherIndex] = true;
+        handler.noMorePosts = true;
         return;
     }
 
-    previousResults[fetcherIndex] = result;
+    handler.previousResult = result;
 
     var filteredPosts = []
     for (var i = 0; i < result.posts.length; ++i) {
@@ -52,7 +39,7 @@ function fetchMorePosts(fetcherIndex) {
     }
 
     if (filteredPosts.length == 0) {
-        noMorePosts[fetcherIndex] = true
+        handler.noMorePosts = true
         return;
     }
 
@@ -60,7 +47,7 @@ function fetchMorePosts(fetcherIndex) {
         return b.date - a.date;
     });
 
-    unusedPosts[fetcherIndex] = unusedPosts[fetcherIndex].concat(filteredPosts);
+    handler.unusedPosts = handler.unusedPosts.concat(filteredPosts);
 }
 
 function getPostHtml(post) {
@@ -106,33 +93,37 @@ function getPostHtml(post) {
     return postContent;
 }
 
-function getNextPost() {
-    var postIndex;
-    for (var i = 0; i < postFetchers.length; ++i) {
-        if (unusedPosts[i].length == 0) {
-            fetchMorePosts(i);
+function getNextPost(subscriptionHandlers) {
+    var handlerToUse;
+    subscriptionHandlers.forEach(function(handler) {
+        if (handler.noMorePosts) {
+            return;
         }
 
-        if (noMorePosts[i]) {
-            continue;
+        if (handler.unusedPosts.length == 0) {
+            getHandlerPosts(handler);
         }
 
-        if (!postIndex || unusedPosts[i][0].date < unusedPosts[postIndex][0].date) {
-            postIndex = i;
+        if (handler.noMorePosts) {
+            return;
         }
-    }
 
-    if (!postIndex) {
+        if (!handlerToUse || handler.unusedPosts[0].date < handlerToUse.unusedPosts[0].date) {
+            handlerToUse = handler;
+        }
+    });
+
+    if (!handlerToUse) {
         return;
     }
 
-    return unusedPosts[postIndex].pop();
+    return handlerToUse.unusedPosts.pop();
 }
 
-function getPostsHtml(count) {
+function getPostsHtml(subscriptionHandlers, count) {
     var postsContent = [];
     for (var i = 0; i < count; ++i) {
-        var nextPost = getNextPost();
+        var nextPost = getNextPost(subscriptionHandlers);
         if (!nextPost) {
             return postsContent;
         }
@@ -140,4 +131,29 @@ function getPostsHtml(count) {
     }
 
     return postsContent;
+}
+
+function PostGenerator() {
+    var generator = {};
+
+    var subscriptionHandlers = [];
+    generator.setSubscriptions = function(subscriptions) {
+        subscriptions.forEach(function(subscription) {
+            if (!subscription.fetchPosts) {
+                return;
+            }
+
+            handler = {};
+            handler.fetchPosts = subscription.fetchPosts;
+            handler.unusedPosts = [];
+            handler.noMorePosts = false;
+            subscriptionHandlers.push(handler);
+        });
+    }
+
+    generator.getPostsHtml = function(count) {
+        return getPostsHtml(subscriptionHandlers, count);
+    }
+
+    return generator;
 }
