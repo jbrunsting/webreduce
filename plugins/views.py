@@ -5,6 +5,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
+from feed.models import ConfiguredPlugin
+
 from .models import Plugin, PluginVersion
 
 STARTER_CODE = '''
@@ -183,8 +185,7 @@ def add_ownership(request, plugin_id):
     form = AddOwnerForm(request.POST)
     if form.is_valid():
         owner = form.cleaned_data['owner']
-        # TODO: 404 if user doesn't exist
-        user = User.objects.get(username=owner)
+        user = get_object_or_404(User, username=owner)
         plugin.owners.add(user)
 
     return redirect('/plugins/ownership/' + str(plugin_id))
@@ -204,9 +205,10 @@ def remove_ownership(request, plugin_id):
     form = RemoveOwnerForm(request.POST)
     if form.is_valid():
         owner = form.cleaned_data['owner']
-        # TODO: 404 if user doesn't exist
-        user = User.objects.get(username=owner)
+        user = get_object_or_404(User, username=owner)
         plugin.owners.remove(user)
+        ConfiguredPlugin.objects.filter(
+            plugin_version__plugin__pk=plugin_id).all().delete()
         if user == request.user:
             return redirect('/plugins')
 
@@ -407,7 +409,7 @@ def view_version(request, version_id):
     version = get_object_or_404(PluginVersion, pk=version_id)
 
     if not version.plugin.owners.filter(
-            pk=request.user.pk).exists() and not version.plugin.approved:
+            pk=request.user.pk).exists() and not version.approved:
         return render(
             request, 'plugins/not_owner.html', {
                 'plugin_name': version.plugin.name,
