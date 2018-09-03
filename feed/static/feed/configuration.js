@@ -1,26 +1,45 @@
-function saveConfig(config, csrfToken, modalContainer) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/feed/configure/" + subscription.id, true);
-    xhttp.setRequestHeader("X-CSRFToken", csrfToken);
-    xhttp.send(JSON.stringify(config));
+function saveConfig(subscriptionId, config, csrfToken) {
+    $.ajax({
+        url: "/feed/configure/" + subscriptionId,
+        type: "POST",
+        data: JSON.stringify(config),
+        headers: {
+            "X-CSRFToken": csrfToken
+        }
+    });
 }
 
-function setupConfiguration(subscription, configBtn, setModal, csrfToken) {
-    if (!subscription.getConfigModal) {
-        configBtn.disabled = true;
-        return;
-    }
+function ConfigHandler(subscription, setModal, csrfToken) {
+    var onSave;
+    handler = {};
 
     function save(config) {
-        saveConfig(config, csrfToken);
+        saveConfig(subscription.id, config, csrfToken);
         setModal();
+        if (onSave) {
+            onSave();
+        }
     }
 
-    configBtn.onclick = function() {
+    handler.showModal = function() {
         setModal(subscription.getConfigModal(subscription.config, save));
     }
 
-    if (!subscription.configValid) {
-        setModal(subscription.getConfigModal(subscription.config, save));
+    handler.configured = function() {
+        return subscription.configValid;
     }
+
+    handler.setConfigBtn = function(configBtn) {
+        if (!subscription.getConfigModal) {
+            configBtn.disabled = true;
+        } else {
+            configBtn.onclick = handler.showModal;
+        }
+    }
+
+    handler.setOnSave = function(callback) {
+        onSave = callback;
+    }
+
+    return handler;
 }

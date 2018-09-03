@@ -7,8 +7,7 @@
 <ul>
     {% for subscription in subscriptions %}
     <li>
-        <h3>
-            <a href="/plugins/view/{{ subscription.plugin_version.id }}">
+        <h3> <a href="/plugins/view/{{ subscription.plugin_version.id }}">
                 {{ subscription.plugin_version.plugin.name }} v{{ subscription.plugin_version.major_version }}.{{ subscription.plugin_version.minor_version }}
             </a>
         </h3>
@@ -51,6 +50,9 @@
 </ul>
 <button id="prev-page">Previous</button>
 <button id="next-page">Next</button>
+
+{% load staticfiles %}
+<script src={% static 'static_jquery/js/jquery.js' %}></script>
 <script src="/static/feed/posts.js"></script>
 <script src="/static/feed/pagination.js"></script>
 <script src="/static/feed/configuration.js"></script>
@@ -96,9 +98,9 @@
 
     postGenerator.setSubscriptions(subscriptions);
 
-    var ul = document.getElementById("main-feed");
-    var nextBtn = document.getElementById("next-page");
-    var prevBtn = document.getElementById("prev-page");
+    var ul = $("#main-feed")[0];
+    var nextBtn = $("#next-page")[0];
+    var prevBtn = $("#prev-page")[0];
     setupPagination(postGenerator, nextBtn, prevBtn, function(posts) {
         while (ul.firstChild) {
             ul.removeChild(ul.firstChild);
@@ -109,7 +111,7 @@
         });
     });
 
-    var modalContainer = document.getElementById("modal-container");
+    var modalContainer = $("#modal-container")[0];
 
     function setModal(modal) {
         while (modalContainer.firstChild) {
@@ -121,9 +123,35 @@
         }
     }
 
+    var configHandlers = [];
     subscriptions.forEach(function(subscription) {
-        var configBtn = document.getElementById("configure-" + subscription.id);
-        setupConfiguration(subscription, configBtn, setModal, "{{ csrf_token }}");
+        if (subscription.getConfigModal) {
+            var configBtn = $("#configure-" + subscription.id)[0];
+            var handler = ConfigHandler(subscription, setModal, "{{ csrf_token }}");
+            handler.setConfigBtn(configBtn);
+            configHandlers.push(handler);
+        }
+    });
+
+    for (var i = 0; i < configHandlers.length - 1; ++i) {
+        (function() {
+            var j = i;
+            configHandlers[j].setOnSave(function() {
+                for (var k = j; k < configHandlers.length; ++k) {
+                    var handler = configHandlers[i + 1];
+                    if (!handler.configured()) {
+                        handler.showModal();
+                    }
+                }
+                configHandlers[j].setOnSave();
+            });
+        });
+    }
+
+    configHandlers.forEach(function(handler) {
+        if (!handler.configured()) {
+            handler.showModal();
+        }
     });
 </script>
 {% endblock %}
