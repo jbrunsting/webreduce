@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ plugin.name }} v{{ version.major_version }}.{{ version.minor_version }}</h1>
+
+{% include "plugins/codemirror.html" %}
+
+<h1>{{ version.plugin.name }} v{{ version.major_version }}.{{ version.minor_version }}</h1>
 <h2>Owners</h2>
 <ul>
-    {% for owner in plugin.owners.all %}
+    {% for owner in version.plugin.owners.all %}
     <li>{{ owner }}</li>
     {% endfor %}
 </ul>
@@ -16,4 +19,14 @@
     {{form}}
     <button type="submit">Submit</button>
 </form>
+
+<script>
+    $(".code").each(function(i, code) {
+        CodeMirror.fromTextArea(code, {
+            "mode": "javascript",
+            "lineNumbers": true,
+            "lineWrapping": true
+        });
+    });
+</script>
 {% endblock %}

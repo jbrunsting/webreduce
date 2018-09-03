@@ -52,10 +52,9 @@
 <button id="next-page">Next</button>
 
 {% load staticfiles %}
-<script src={% static 'static_jquery/js/jquery.js' %}></script>
-<script src="/static/feed/posts.js"></script>
-<script src="/static/feed/pagination.js"></script>
-<script src="/static/feed/configuration.js"></script>
+<script src={% static "feed/posts.js" %}></script>
+<script src={% static "feed/pagination.js" %}></script>
+<script src={% static "feed/configuration.js" %}></script>
 <script>
     var subscriptions = []
 </script>

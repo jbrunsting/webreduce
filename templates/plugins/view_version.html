@@ -1,11 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+{% include "plugins/codemirror.html" %}
+
 <h1>{{ plugin_version.plugin.name}} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}</h1>
 <p>{{ plugin_version.plugin.description }}</p>
-<pre>
-<code>
-    {{ plugin_version.code }}
-</code>
-</pre>
+<div id="code">{{ plugin_version.code }}</div>
+
+<script>
+    code = $("#code")[0];
+    CodeMirror(function(elt) {
+        code.parentNode.replaceChild(elt, code);
+    }, {
+        "value": code.innerHTML,
+        "mode": "javascript",
+        "lineNumbers": true,
+        "lineWrapping": true,
+        "readOnly": true
+    });
+</script>
 {% endblock %}

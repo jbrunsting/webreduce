@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+{% include "plugins/codemirror.html" %}
+
 <h1>{{ plugin.name }}</h1>
 <h2>Owners</h2>
 <ul>
@@ -16,4 +19,14 @@
     {{form}}
     <button type="submit">Submit</button>
 </form>
+
+<script>
+    $(".code").each(function(i, code) {
+        CodeMirror.fromTextArea(code, {
+            "mode": "javascript",
+            "lineNumbers": true,
+            "lineWrapping": true
+        });
+    });
+</script>
 {% endblock %}

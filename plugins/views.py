@@ -226,7 +226,8 @@ class CreateVersionForm(forms.ModelForm):
         widgets = {
             'code': forms.Textarea(attrs={
                 'cols': 80,
-                'rows': 50
+                'rows': 50,
+                'class': 'code'
             }),
         }
 
@@ -251,6 +252,7 @@ def get_create_version(request, plugin):
 
     return render(request, 'plugins/update.html', {
         'form': form,
+        'plugin': plugin
     })
 
 
@@ -322,7 +324,8 @@ class EditVersionForm(forms.ModelForm):
         widgets = {
             'code': forms.Textarea(attrs={
                 'cols': 80,
-                'rows': 50
+                'rows': 50,
+                'class': 'code'
             }),
         }
 
