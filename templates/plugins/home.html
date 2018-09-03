@@ -5,6 +5,10 @@
 <p><a href="/plugins/create">New plugin</a></p>
 {% for plugin, versions in plugins.items %}
 <h2>{{ plugin.name }}</h2>
+<form action="/plugins/disown/{{ plugin.id }}" method="post" onSubmit="return confirm('Remove yourself as an owner of plugin {{ plugin.name }}?');">
+    {% csrf_token %}
+    <button type="submit">Disown</button>
+</form>
 <p>{{ plugin.description }}</p>
 <p><a href="/plugins/update/{{ plugin.id }}">New version</a></p>
 {% for version in versions %}

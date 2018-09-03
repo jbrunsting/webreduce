@@ -141,6 +141,18 @@ def create_plugin(request):
     return post_create_plugin(request)
 
 
+@login_required
+@require_http_methods(["POST"])
+def disown(request, plugin_id):
+    if not Plugin.objects.filter(pk=plugin_id).exists():
+        return render(request, 'plugins/plugin_not_found.html', {
+            'plugin_id': plugin_id,
+        })
+
+    Plugin.objects.get(pk=plugin_id).owners.remove(request.user)
+    return redirect('/plugins')
+
+
 class CreateVersionForm(forms.ModelForm):
     class Meta:
         model = PluginVersion

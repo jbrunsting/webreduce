@@ -6,6 +6,7 @@ urlpatterns = [
     path('', views.home),
     path('create', views.create_plugin),
     path('update/<plugin_id>', views.create_version),
+    path('disown/<plugin_id>', views.disown),
     path('edit/<version_id>', views.edit_version),
     path('publish/<version_id>', views.publish_version),
     path('view/<version_id>', views.view_version),
