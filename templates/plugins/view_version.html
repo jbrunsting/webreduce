@@ -6,18 +6,11 @@
 
 <h1>{{ plugin_version.plugin.name}} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}</h1>
 <p>{{ plugin_version.plugin.description }}</p>
-<div id="code">{{ plugin_version.code }}</div>
+<div class="code readonly">{{ plugin_version.code }}</div>
 
+{% load static %}
+<script src={% static "plugins/editor.js" %}></script>
 <script>
-    code = $("#code")[0];
-    CodeMirror(function(elt) {
-        code.parentNode.replaceChild(elt, code);
-    }, {
-        "value": code.innerHTML,
-        "mode": "javascript",
-        "lineNumbers": true,
-        "lineWrapping": true,
-        "readOnly": true
-    });
+    setupCodeBlocks()
 </script>
 {% endblock %}

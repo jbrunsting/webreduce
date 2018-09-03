@@ -20,13 +20,9 @@
     <button type="submit">Submit</button>
 </form>
 
+{% load static %}
+<script src={% static "plugins/editor.js" %}></script>
 <script>
-    $(".code").each(function(i, code) {
-        CodeMirror.fromTextArea(code, {
-            "mode": "javascript",
-            "lineNumbers": true,
-            "lineWrapping": true
-        });
-    });
+    setupCodeBlocks()
 </script>
 {% endblock %}
