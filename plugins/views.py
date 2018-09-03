@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
@@ -141,16 +142,87 @@ def create_plugin(request):
     return post_create_plugin(request)
 
 
+class AddOwnerForm(forms.Form):
+    owner = forms.CharField()
+
+
+class RemoveOwnerForm(forms.Form):
+    owner = forms.CharField()
+
+
 @login_required
-@require_http_methods(["POST"])
-def disown(request, plugin_id):
+@require_http_methods(["GET", "POST"])
+def ownership(request, plugin_id):
     if not Plugin.objects.filter(pk=plugin_id).exists():
         return render(request, 'plugins/plugin_not_found.html', {
             'plugin_id': plugin_id,
         })
 
-    Plugin.objects.get(pk=plugin_id).owners.remove(request.user)
-    return redirect('/plugins')
+    plugin = Plugin.objects.get(pk=plugin_id)
+    if not plugin.owners.filter(pk=request.user.pk).exists():
+        return render(request, 'plugins/not_owner.html', {
+            'plugin_name': plugin.name,
+            'plugin_owners': plugin.owners.all(),
+        })
+
+    return render(
+        request, 'plugins/ownership.html', {
+            'plugin': plugin,
+            'add_owner_form': AddOwnerForm(),
+            'remove_owner_form': RemoveOwnerForm(),
+        })
+
+
+@login_required
+@require_http_methods(["POST"])
+def add_ownership(request, plugin_id):
+    if not Plugin.objects.filter(pk=plugin_id).exists():
+        return render(request, 'plugins/plugin_not_found.html', {
+            'plugin_id': plugin_id,
+        })
+
+    plugin = Plugin.objects.get(pk=plugin_id)
+    if not plugin.owners.filter(pk=request.user.pk).exists():
+        return render(request, 'plugins/not_owner.html', {
+            'plugin_name': plugin.name,
+            'plugin_owners': plugin.owners.all(),
+        })
+
+    form = AddOwnerForm(request.POST)
+    if form.is_valid():
+        owner = form.cleaned_data['owner']
+        # TODO: 404 if user doesn't exist
+        user = User.objects.get(username=owner)
+        plugin.owners.add(user)
+
+    return redirect('/plugins/ownership/' + str(plugin_id))
+
+
+@login_required
+@require_http_methods(["POST"])
+def remove_ownership(request, plugin_id):
+    if not Plugin.objects.filter(pk=plugin_id).exists():
+        return render(request, 'plugins/plugin_not_found.html', {
+            'plugin_id': plugin_id,
+        })
+
+    plugin = Plugin.objects.get(pk=plugin_id)
+    if not plugin.owners.filter(pk=request.user.pk).exists():
+        return render(request, 'plugins/not_owner.html', {
+            'plugin_name': plugin.name,
+            'plugin_owners': plugin.owners.all(),
+        })
+
+    form = RemoveOwnerForm(request.POST)
+    if form.is_valid():
+        owner = form.cleaned_data['owner']
+        # TODO: 404 if user doesn't exist
+        user = User.objects.get(username=owner)
+        plugin.owners.remove(user)
+        if user == request.user:
+            return redirect('/plugins')
+
+    return redirect('/plugins/ownership/' + str(plugin_id))
 
 
 class CreateVersionForm(forms.ModelForm):

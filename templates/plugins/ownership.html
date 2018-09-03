@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ plugin.name }}</h1>
+<h2>Add Owner</h2>
+<form action="/plugins/ownership/add/{{ plugin.id }}" method="post">
+    {% csrf_token %}
+    {{ add_owner_form }}
+    <button type="submit">Add</button>
+</form>
+<h2>Remove Owner</h2>
+<form action="/plugins/ownership/remove/{{ plugin.id }}" method="post">
+    {% csrf_token %}
+    {{ remove_owner_form }}
+    <button type="submit">Remove</button>
+</form>
+<h2>Remove Owner</h2>
+<h2>Owners</h2>
+<ul>
+    {% for owner in plugin.owners.all %}
+    <li>{{ owner.username }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
