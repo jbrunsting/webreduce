@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
 from .models import Plugin, PluginVersion
@@ -153,12 +153,8 @@ class RemoveOwnerForm(forms.Form):
 @login_required
 @require_http_methods(["GET", "POST"])
 def ownership(request, plugin_id):
-    if not Plugin.objects.filter(pk=plugin_id).exists():
-        return render(request, 'plugins/plugin_not_found.html', {
-            'plugin_id': plugin_id,
-        })
+    plugin = get_object_or_404(Plugin, pk=plugin_id)
 
-    plugin = Plugin.objects.get(pk=plugin_id)
     if not plugin.owners.filter(pk=request.user.pk).exists():
         return render(request, 'plugins/not_owner.html', {
             'plugin_name': plugin.name,
@@ -176,12 +172,8 @@ def ownership(request, plugin_id):
 @login_required
 @require_http_methods(["POST"])
 def add_ownership(request, plugin_id):
-    if not Plugin.objects.filter(pk=plugin_id).exists():
-        return render(request, 'plugins/plugin_not_found.html', {
-            'plugin_id': plugin_id,
-        })
+    plugin = get_object_or_404(Plugin, pk=plugin_id)
 
-    plugin = Plugin.objects.get(pk=plugin_id)
     if not plugin.owners.filter(pk=request.user.pk).exists():
         return render(request, 'plugins/not_owner.html', {
             'plugin_name': plugin.name,
@@ -201,12 +193,8 @@ def add_ownership(request, plugin_id):
 @login_required
 @require_http_methods(["POST"])
 def remove_ownership(request, plugin_id):
-    if not Plugin.objects.filter(pk=plugin_id).exists():
-        return render(request, 'plugins/plugin_not_found.html', {
-            'plugin_id': plugin_id,
-        })
+    plugin = get_object_or_404(Plugin, pk=plugin_id)
 
-    plugin = Plugin.objects.get(pk=plugin_id)
     if not plugin.owners.filter(pk=request.user.pk).exists():
         return render(request, 'plugins/not_owner.html', {
             'plugin_name': plugin.name,
@@ -308,12 +296,8 @@ def post_create_version(request, plugin):
 @login_required
 @require_http_methods(["GET", "POST"])
 def create_version(request, plugin_id):
-    if not Plugin.objects.filter(pk=plugin_id).exists():
-        return render(request, 'plugins/plugin_not_found.html', {
-            'plugin_id': plugin_id,
-        })
+    plugin = get_object_or_404(Plugin, pk=plugin_id)
 
-    plugin = Plugin.objects.get(pk=plugin_id)
     # TODO: Use django permissions to guard against this
     if not plugin.owners.filter(pk=request.user.pk).exists():
         return render(request, 'plugins/not_owner.html', {
@@ -352,7 +336,8 @@ def get_edit_version(request, version, error=None):
 
 
 def post_edit_version(request, version_id):
-    version = PluginVersion.objects.get(pk=version_id)
+    version = get_object_or_404(PluginVersion, pk=version_id)
+
     form = EditVersionForm(request.POST, instance=version)
     # TODO: Use django permissions to guard against this
     if not version.plugin.owners.filter(pk=request.user.pk).exists():
@@ -381,12 +366,8 @@ def post_edit_version(request, version_id):
 @login_required
 @require_http_methods(["GET", "POST"])
 def edit_version(request, version_id):
-    if not PluginVersion.objects.filter(pk=version_id).exists():
-        return render(request, 'plugins/version_not_found.html', {
-            'version_id': version_id,
-        })
+    version = get_object_or_404(PluginVersion, pk=version_id)
 
-    version = PluginVersion.objects.get(pk=version_id)
     # TODO: Use django permissions to guard against this
     if not version.plugin.owners.filter(pk=request.user.pk).exists():
         return render(
@@ -404,12 +385,8 @@ def edit_version(request, version_id):
 @login_required
 @require_http_methods(["POST"])
 def publish_version(request, version_id):
-    if not PluginVersion.objects.filter(pk=version_id).exists():
-        return render(request, 'plugins/version_not_found.html', {
-            'version_id': version_id,
-        })
+    version = get_object_or_404(PluginVersion, pk=version_id)
 
-    version = PluginVersion.objects.get(pk=version_id)
     # TODO: Use django permissions to guard against this
     if not version.plugin.owners.filter(pk=request.user.pk).exists():
         return render(
@@ -427,12 +404,8 @@ def publish_version(request, version_id):
 @login_required
 @require_http_methods(["GET"])
 def view_version(request, version_id):
-    if not PluginVersion.objects.filter(pk=version_id).exists():
-        return render(request, 'plugins/version_not_found.html', {
-            'version_id': version_id,
-        })
+    version = get_object_or_404(PluginVersion, pk=version_id)
 
-    version = PluginVersion.objects.get(pk=version_id)
     if not version.plugin.owners.filter(
             pk=request.user.pk).exists() and not version.plugin.approved:
         return render(
@@ -464,12 +437,8 @@ def approvals(request):
 @user_passes_test(lambda u: u.is_superuser)
 @require_http_methods(["POST"])
 def approve(request, version_id):
-    if not PluginVersion.objects.filter(pk=version_id).exists():
-        return render(request, 'plugins/version_not_found.html', {
-            'version_id': version_id,
-        })
+    version = get_object_or_404(PluginVersion, pk=version_id)
 
-    version = PluginVersion.objects.get(pk=version_id)
     version.approved = True
     version.save()
 
@@ -479,17 +448,13 @@ def approve(request, version_id):
 @user_passes_test(lambda u: u.is_superuser)
 @require_http_methods(["POST"])
 def reject(request, version_id):
-    if not PluginVersion.objects.filter(pk=version_id).exists():
-        return render(request, 'plugins/version_not_found.html', {
-            'version_id': version_id,
-        })
-
     rejection_form = RejectionForm(request.POST)
 
     if not rejection_form.is_valid():
         return redirect('/plugins/approvals')
 
-    version = PluginVersion.objects.get(pk=version_id)
+    version = get_object_or_404(PluginVersion, pk=version_id)
+
     version.rejected = True
     version.rejection_reason = rejection_form.cleaned_data['rejection_reason']
     version.save()

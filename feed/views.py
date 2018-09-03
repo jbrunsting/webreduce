@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -122,64 +122,50 @@ def search(request):
 @login_required
 @require_http_methods(["POST"])
 def subscribe(request, plugin_version_id):
-    if not PluginVersion.objects.filter(pk=plugin_version_id).exists():
-        return render(request, 'plugins/version_not_found.html', {
-            'plugin_version_id': plugin_version_id,
-        })
+    plugin_version = get_object_or_404(PluginVersion, pk=plugin_version_id)
 
-    plugin_version = PluginVersion.objects.get(pk=plugin_version_id)
     if ConfiguredPlugin.objects.filter(plugin_version=plugin_version).exists():
         return redirect('/feed')
 
     configured_plugin = ConfiguredPlugin(
         user=request.user, plugin_version=plugin_version)
     configured_plugin.save()
+
     return redirect('/feed')
 
 
 @login_required
 @require_http_methods(["POST"])
 def unsubscribe(request, plugin_version_id):
-    if not PluginVersion.objects.filter(pk=plugin_version_id).exists():
-        return render(request, 'plugins/version_not_found.html', {
-            'plugin_version_id': plugin_version_id,
-        })
+    plugin_version = get_object_or_404(PluginVersion, pk=plugin_version_id)
 
-    plugin_version = PluginVersion.objects.get(pk=plugin_version_id)
     candidates = ConfiguredPlugin.objects.filter(
         user=request.user, plugin_version=plugin_version)
     if candidates.exists():
         candidates.first().delete()
+
     return redirect('/feed')
 
 
 @login_required
 @require_http_methods(["POST"])
 def update(request, plugin_version_id):
-    if not PluginVersion.objects.filter(pk=plugin_version_id).exists():
-        return render(request, 'plugins/version_not_found.html', {
-            'plugin_version_id': plugin_version_id,
-        })
+    new_version = get_object_or_404(PluginVersion, pk=plugin_version_id)
 
-    new_version = PluginVersion.objects.get(pk=plugin_version_id)
     configurations = ConfiguredPlugin.objects.filter(
         user=request.user, plugin_version__plugin=new_version.plugin)
     if configurations.exists():
         configuration = configurations.first()
         configuration.plugin_version = new_version
         configuration.save()
+
     return redirect('/feed')
 
 
 @login_required
 @require_http_methods(["POST"])
 def configure(request, configuration_id):
-    if not ConfiguredPlugin.objects.filter(pk=configuration_id).exists():
-        return render(request, 'feeds/configuration_not_found.html', {
-            'configuration_id': configuration_id,
-        })
-
-    configuration = ConfiguredPlugin.objects.get(pk=configuration_id)
+    configuration = get_object_or_404(ConfiguredPlugin, pk=configuration_id)
     configuration.config = request.body.decode('utf-8')
     configuration.save()
 
