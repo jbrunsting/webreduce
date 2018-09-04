@@ -89,13 +89,16 @@
     })();
 
     subscription.id = "{{ subscription.id }}";
+    subscription.pluginName = "{{ subscription.plugin_version.plugin.name }}";
     subscriptions.push(subscription);
 </script>
 {% endfor %}
 <script>
     postGenerator = PostGenerator();
 
-    postGenerator.setSubscriptions(subscriptions);
+    postGenerator.setSubscriptions(subscriptions.filter(function(subscription) {
+        return subscription.configValid;
+    }));
 
     var ul = $("#main-feed")[0];
     var nextBtn = $("#next-page")[0];
@@ -132,25 +135,29 @@
         }
     });
 
-    for (var i = 0; i < configHandlers.length - 1; ++i) {
-        (function() {
-            var j = i;
-            configHandlers[j].setOnSave(function() {
-                for (var k = j; k < configHandlers.length; ++k) {
-                    var handler = configHandlers[i + 1];
-                    if (!handler.configured()) {
-                        handler.showModal();
+    var firstNotConfigured
+    for (var i = 0; i < configHandlers.length; ++i) {
+        if (!firstNotConfigured && !configHandlers[i].configured()) {
+            firstNotConfigured = configHandlers[i];
+        }
+
+        if (i < configHandlers.length - 1) {
+            (function() {
+                var j = i;
+                configHandlers[j].setOnSave(function() {
+                    for (var k = j; k < configHandlers.length; ++k) {
+                        var handler = configHandlers[i + 1];
+                        if (!handler.configured()) {
+                            handler.showModal();
+                        }
                     }
-                }
-                configHandlers[j].setOnSave();
-            });
-        });
+                });
+            })();
+        }
     }
 
-    configHandlers.forEach(function(handler) {
-        if (!handler.configured()) {
-            handler.showModal();
-        }
-    });
+    if (firstNotConfigured) {
+        firstNotConfigured.showModal();
+    }
 </script>
 {% endblock %}

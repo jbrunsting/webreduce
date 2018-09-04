@@ -1,53 +1,63 @@
-function getHandlerPosts(handler) {
+var POST_BUFFER_SIZE = 10;
+var HANDLER_TIMEOUT = 15000;
+
+function getHandlerPosts(handler, callback) {
     if (handler.noMorePosts) {
+        callback();
         return;
+    }
+
+    function onResult(result) {
+        if (!result || !Array.isArray(result.posts) || result.posts.length == 0) {
+            handler.noMorePosts = true;
+            callback();
+            return;
+        }
+
+        handler.previousResult = result;
+
+        var filteredPosts = []
+        for (var i = 0; i < result.posts.length; ++i) {
+            post = result.posts[i];
+            if (!post.title) {
+                console.log("Post has no title: " + JSON.stringify(post));
+                continue;
+            }
+
+            if (!post.date instanceof Date || isNaN(post.date)) {
+                console.log("Post has an invalid date" + JSON.stringify(post));
+                continue;
+            }
+
+            filteredPosts.push(post);
+        }
+
+        if (filteredPosts.length == 0) {
+            handler.noMorePosts = true
+            callback();
+            return;
+        }
+
+        filteredPosts.sort(function(a, b) {
+            return b.date - a.date;
+        });
+
+        handler.unusedPosts = handler.unusedPosts.concat(filteredPosts);
+        callback();
     }
 
     var result;
     if (handler.previousResult && handler.previousResult.paginationData) {
-        result = handler.fetchPosts(handler.previousResult.paginationData);
+        handler.fetchPosts(onResult, handler.previousResult.paginationData);
     } else if (handler.previousResult) {
         // If there is no pagination data, and we already made a call, don't
         // try and get the next page since the request must not be paginated
         handler.noMorePosts = true;
+        callback();
         return;
     } else {
-        result = handler.fetchPosts();
+        handler.fetchPosts(onResult);
     }
-
-    if (!result || !Array.isArray(result.posts) || result.posts.length == 0) {
-        handler.noMorePosts = true;
-        return;
-    }
-
-    handler.previousResult = result;
-
-    var filteredPosts = []
-    for (var i = 0; i < result.posts.length; ++i) {
-        post = result.posts[i];
-        if (!post.title) {
-            console.log("Post has no title: " + JSON.stringify(post));
-            continue;
-        }
-
-        if (!post.date instanceof Date || isNaN(post.date)) {
-            console.log("Post has an invalid date" + JSON.stringify(post));
-            continue;
-        }
-
-        filteredPosts.push(post);
-    }
-
-    if (filteredPosts.length == 0) {
-        handler.noMorePosts = true
-        return;
-    }
-
-    filteredPosts.sort(function(a, b) {
-        return b.date - a.date;
-    });
-
-    handler.unusedPosts = handler.unusedPosts.concat(filteredPosts);
 }
 
 function getPostHtml(post) {
@@ -93,44 +103,86 @@ function getPostHtml(post) {
     return postContent;
 }
 
-function getNextPost(subscriptionHandlers) {
-    var handlerToUse;
+function fillPostBuffers(subscriptionHandlers, callback) {
+    var timedOut = false;
+    var handlersNeedingPosts = [];
     subscriptionHandlers.forEach(function(handler) {
-        if (handler.noMorePosts) {
-            return;
-        }
-
-        if (handler.unusedPosts.length == 0) {
-            getHandlerPosts(handler);
-        }
-
-        if (handler.noMorePosts) {
-            return;
-        }
-
-        if (!handlerToUse || handler.unusedPosts[0].date < handlerToUse.unusedPosts[0].date) {
-            handlerToUse = handler;
+        if (!handler.noMorePosts && handler.unusedPosts.length < POST_BUFFER_SIZE) {
+            handlersNeedingPosts.push(handler);
         }
     });
 
-    if (!handlerToUse) {
+    if (handlersNeedingPosts.length == 0) {
+        callback();
         return;
     }
 
-    return handlerToUse.unusedPosts.pop();
+    handlersNeedingPosts.forEach(function(handler) {
+        getHandlerPosts(handler, function() {
+            if (timedOut) {
+                return;
+            }
+
+            handlersNeedingPosts.splice(handlersNeedingPosts.indexOf(handler), 1);
+            if (handlersNeedingPosts.length == 0) {
+                callback();
+            }
+        });
+    });
+
+    setTimeout(function() {
+        if (handlersNeedingPosts.length == 0) {
+            return;
+        }
+
+        timedOut = true;
+        handlersNeedingPosts.forEach(function(handler) {
+            console.error("Plugin " + handler.pluginName + " timed out while getting posts");
+            handler.timedOut = true;
+        });
+
+        callback();
+    }, HANDLER_TIMEOUT);
 }
 
-function getPostsHtml(subscriptionHandlers, count) {
-    var postsContent = [];
-    for (var i = 0; i < count; ++i) {
-        var nextPost = getNextPost(subscriptionHandlers);
-        if (!nextPost) {
-            return postsContent;
-        }
-        postsContent.push(getPostHtml(nextPost));
-    }
+function getNextPost(subscriptionHandlers, callback) {
+    fillPostBuffers(subscriptionHandlers, function() {
+        var handlerToUse;
+        subscriptionHandlers.forEach(function(handler) {
+            if (handler.unusedPosts.length == 0) {
+                return;
+            }
 
-    return postsContent;
+            if (!handlerToUse || handler.unusedPosts[0].date < handlerToUse.unusedPosts[0].date) {
+                handlerToUse = handler;
+            }
+        });
+
+        if (!handlerToUse) {
+            callback();
+            return;
+        }
+
+        callback(handlerToUse.unusedPosts.pop());
+    });
+}
+
+function getPostsHtml(subscriptionHandlers, count, callback) {
+    var postsContent = [];
+    var onGotPost = function(post) {
+        if (post) {
+            var postHtml = getPostHtml(post);
+            postsContent.push(postHtml);
+            if (postsContent.length >= count) {
+                callback(postsContent);
+            } else {
+                getNextPost(subscriptionHandlers, onGotPost);
+            }
+        } else {
+            callback(postsContent);
+        }
+    }
+    getNextPost(subscriptionHandlers, onGotPost);
 }
 
 function PostGenerator() {
@@ -144,17 +196,19 @@ function PostGenerator() {
             }
 
             handler = {};
-            handler.fetchPosts = function(paginationData) {
-                return subscription.fetchPosts(subscription.config, paginationData);
+            handler.fetchPosts = function(callback, paginationData) {
+                return subscription.fetchPosts(callback, subscription.config, paginationData);
             }
+            handler.pluginName = subscription.pluginName;
             handler.unusedPosts = [];
             handler.noMorePosts = false;
+            handler.timedOut = false;
             subscriptionHandlers.push(handler);
         });
     }
 
-    generator.getPostsHtml = function(count) {
-        return getPostsHtml(subscriptionHandlers, count);
+    generator.getPostsHtml = function(count, callback) {
+        return getPostsHtml(subscriptionHandlers, count, callback);
     }
 
     return generator;

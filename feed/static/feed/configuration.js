@@ -22,7 +22,7 @@ function ConfigHandler(subscription, setModal, csrfToken) {
     }
 
     handler.showModal = function() {
-        setModal(subscription.getConfigModal(subscription.config, save));
+        setModal(subscription.getConfigModal(save, subscription.config));
     }
 
     handler.configured = function() {

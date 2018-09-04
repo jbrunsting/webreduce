@@ -10,7 +10,7 @@ class Plugin(models.Model):
 
 class PluginVersion(models.Model):
     plugin = models.ForeignKey(Plugin, on_delete=models.CASCADE)
-    code = models.CharField(max_length=4096)
+    code = models.CharField(max_length=16384)
     major_version = models.IntegerField()
     minor_version = models.IntegerField()
     published = models.BooleanField(default=False)

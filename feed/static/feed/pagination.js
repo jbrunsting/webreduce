@@ -4,14 +4,17 @@ function setupPagination(postGenerator, nextBtn, prevBtn, setPosts) {
     var posts = [];
     var currentPage = -1;
     var morePosts = true;
+    nextBtn.disabled = true;
     prevBtn.disabled = true;
 
-    function getMorePosts() {
-        newPosts = postGenerator.getPostsHtml(POSTS_PER_PAGE);
-        if (!newPosts || newPosts.length === 0) {
-            morePosts = false;
-        }
-        posts = posts.concat(newPosts);
+    function getMorePosts(callback) {
+        postGenerator.getPostsHtml(POSTS_PER_PAGE, function(newPosts) {
+            if (!newPosts || newPosts.length === 0) {
+                morePosts = false;
+            }
+            posts = posts.concat(newPosts);
+            callback();
+        });
     }
 
     function prevPage() {
@@ -26,25 +29,39 @@ function setupPagination(postGenerator, nextBtn, prevBtn, setPosts) {
         setPosts(posts.slice(currentPage, currentPage + POSTS_PER_PAGE));
     }
 
+    function bufferNextPage(callback) {
+        if ((currentPage + 2) * POSTS_PER_PAGE >= posts.length) {
+            if (morePosts) {
+                getMorePosts(function() {
+                    bufferNextPage(callback);
+                });
+            } else {
+                callback((currentPage + 1) * POSTS_PER_PAGE < posts.length);
+            }
+        } else {
+            callback(true);
+        }
+    }
+
     function nextPage() {
         currentPage += 1;
         if (currentPage > 0) {
             prevBtn.disabled = false;
         }
 
-        while ((currentPage + 1) * POSTS_PER_PAGE >= posts.length) {
-            if (morePosts) {
-                getMorePosts();
-            } else {
-                nextBtn.disabled = true;
-                break;
-            }
-        }
-
         setPosts(posts.slice(currentPage, currentPage + POSTS_PER_PAGE));
+
+        nextBtn.disabled = true;
+        bufferNextPage(function(hasNextPage) {
+            nextBtn.disabled = !hasNextPage;
+        });
     }
 
-    nextPage();
+    bufferNextPage(function(hasNextPage) {
+        if (hasNextPage) {
+            nextPage();
+        }
+    });
 
     prevBtn.onclick = prevPage;
     nextBtn.onclick = nextPage;
