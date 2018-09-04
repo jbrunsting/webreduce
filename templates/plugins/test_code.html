@@ -1,0 +1,92 @@
+{% load static %}
+<script src={% static "plugins/tester.js" %}></script>
+
+<div id="modal-container"></div>
+<label for="config-input">Existing config</label>
+<textarea id="config-input" class="code"></textarea>
+<label for="pagination-data-input">Existing pagination data</label>
+<textarea id="pagination-data-input" class="code"></textarea>
+<button id="test-code">Test code</button>
+<p id="error-output"></p>
+<textarea id="test-output" class="code"></textarea>
+<script>
+    var configEditor = CodeMirror.fromTextArea($("#config-input")[0], {
+        "mode": "javascript",
+        "lineNumbers": true,
+        "lineWrapping": true
+    });
+
+    var paginationDataEditor = CodeMirror.fromTextArea($("#pagination-data-input")[0], {
+        "mode": "javascript",
+        "lineNumbers": true,
+        "lineWrapping": true
+    });
+
+    var testOutput = CodeMirror.fromTextArea($("#test-output")[0], {
+        "mode": "javascript",
+        "lineNumbers": true,
+        "lineWrapping": true,
+        "readOnly": true,
+    });
+
+    var modalContainer = $("#modal-container")[0];
+
+    function setModal(modal) {
+        while (modalContainer.firstChild) {
+            modalContainer.removeChild(modalContainer.firstChild);
+        }
+
+        if (modal) {
+            modalContainer.appendChild(modal);
+        }
+    }
+
+    function onError(error) {
+        $("#error-output").text(error);
+    }
+
+    function onResult(result) {
+        try {
+            testOutput.setValue(JSON.stringify(result));
+        } catch (e) {
+            try {
+                testOutput.setValue(String(result));
+            } catch (e) {
+                onError("Couldn't output test results");
+            }
+        }
+    }
+
+    $("#test-code")[0].onclick = function() {
+        $("#error-output").text("");
+        testOutput.setValue("");
+
+        var config
+        try {
+            if (configEditor.getValue() !== "") {
+                config = JSON.parse(configEditor.getValue());
+            }
+        } catch (e) {
+            onError("Couldn't parse config as JSON: " + e);
+            return
+        }
+
+        var paginationData
+        try {
+            if (paginationDataEditor.getValue() !== "") {
+                config = JSON.parse(paginationDataEditor.getValue());
+            }
+        } catch (e) {
+            onError("Couldn't parse pagination data as JSON: " + e);
+            return
+        }
+
+        /* beautify preserve:start */
+        {% if get_code %}
+        testCode({{ get_code }}(), setModal, onResult, onError, config, paginationData);
+        {% else %}
+        onError("Couldn't fetch code from text input");
+        {% endif %}
+        /* beautify preserve:end */
+    }
+</script>

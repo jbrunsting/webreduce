@@ -23,6 +23,13 @@
 {% load static %}
 <script src={% static "plugins/editor.js" %}></script>
 <script>
-    setupCodeBlocks()
+    var editors = setupCodeBlocks()
+
+    function getCode() {
+        return editors[$("#id_code")[0]].getValue();
+    }
 </script>
+
+{% include "plugins/test_code.html" with get_code="getCode" %}
+
 {% endblock %}
