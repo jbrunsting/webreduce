@@ -76,7 +76,7 @@ function getPostHtml(post) {
     }
 
     var date = document.createElement("p");
-    date.appendChild(document.createTextNode(post.date.toLocaleString()));
+    date.appendChild(document.createTextNode((new Date(post.date)).toLocaleString()));
     postContent.appendChild(date);
 
     if (post.author) {
