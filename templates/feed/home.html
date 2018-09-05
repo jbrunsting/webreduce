@@ -141,19 +141,18 @@
             firstNotConfigured = configHandlers[i];
         }
 
-        if (i < configHandlers.length - 1) {
-            (function() {
-                var j = i;
-                configHandlers[j].setOnSave(function() {
-                    for (var k = j; k < configHandlers.length; ++k) {
-                        var handler = configHandlers[i + 1];
-                        if (!handler.configured()) {
-                            handler.showModal();
-                        }
+        (function() {
+            var j = i;
+            configHandlers[j].setOnSave(function() {
+                for (var k = j; k < configHandlers.length - 1; ++k) {
+                    var handler = configHandlers[k + 1];
+                    if (!handler.configured()) {
+                        handler.showModal();
+                        break;
                     }
-                });
-            })();
-        }
+                }
+            });
+        })();
     }
 
     if (firstNotConfigured) {
