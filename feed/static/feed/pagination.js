@@ -25,8 +25,8 @@ function setupPagination(postGenerator, nextBtn, prevBtn, setPosts) {
             prevBtn.disabled = true;
         }
 
-        firstPost = currentPage * POSTS_PER_PAGE;
-        setPosts(posts.slice(currentPage, currentPage + POSTS_PER_PAGE));
+        var firstPost = currentPage * POSTS_PER_PAGE;
+        setPosts(posts.slice(firstPost, firstPost + POSTS_PER_PAGE));
     }
 
     function bufferNextPage(callback) {
@@ -49,7 +49,8 @@ function setupPagination(postGenerator, nextBtn, prevBtn, setPosts) {
             prevBtn.disabled = false;
         }
 
-        setPosts(posts.slice(currentPage, currentPage + POSTS_PER_PAGE));
+        var firstPost = currentPage * POSTS_PER_PAGE;
+        setPosts(posts.slice(firstPost, firstPost + POSTS_PER_PAGE));
 
         nextBtn.disabled = true;
         bufferNextPage(function(hasNextPage) {

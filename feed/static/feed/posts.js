@@ -1,5 +1,5 @@
 var POST_BUFFER_SIZE = 10;
-var HANDLER_TIMEOUT = 15000;
+var HANDLER_TIMEOUT = 10000;
 
 function getHandlerPosts(handler, callback) {
     if (handler.noMorePosts) {
@@ -37,10 +37,6 @@ function getHandlerPosts(handler, callback) {
             callback();
             return;
         }
-
-        filteredPosts.sort(function(a, b) {
-            return b.date - a.date;
-        });
 
         handler.unusedPosts = handler.unusedPosts.concat(filteredPosts);
         callback();
@@ -106,6 +102,7 @@ function getPostHtml(post) {
 function fillPostBuffers(subscriptionHandlers, callback) {
     var timedOut = false;
     var handlersNeedingPosts = [];
+    var handlersComplete = [];
     subscriptionHandlers.forEach(function(handler) {
         if (!handler.noMorePosts && handler.unusedPosts.length < POST_BUFFER_SIZE) {
             handlersNeedingPosts.push(handler);
@@ -117,28 +114,32 @@ function fillPostBuffers(subscriptionHandlers, callback) {
         return;
     }
 
-    handlersNeedingPosts.forEach(function(handler) {
+    var handlersPending = handlersNeedingPosts.length;
+    handlersNeedingPosts.forEach(function(handler, i) {
         getHandlerPosts(handler, function() {
             if (timedOut) {
                 return;
             }
 
-            handlersNeedingPosts.splice(handlersNeedingPosts.indexOf(handler), 1);
-            if (handlersNeedingPosts.length == 0) {
+            --handlersPending;
+            handlersComplete[i] = true;
+            if (handlersPending <= 0) {
                 callback();
             }
         });
     });
 
     setTimeout(function() {
-        if (handlersNeedingPosts.length == 0) {
+        if (handlersPending <= 0) {
             return;
         }
 
         timedOut = true;
-        handlersNeedingPosts.forEach(function(handler) {
-            console.error("Plugin " + handler.pluginName + " timed out while getting posts");
-            handler.timedOut = true;
+        handlersNeedingPosts.forEach(function(handler, i) {
+            if (!handlersComplete[i]) {
+                handler.noMorePosts = true;
+                console.error("Plugin " + handler.pluginName + " timed out");
+            }
         });
 
         callback();
@@ -163,7 +164,7 @@ function getNextPost(subscriptionHandlers, callback) {
             return;
         }
 
-        callback(handlerToUse.unusedPosts.pop());
+        callback(handlerToUse.unusedPosts.shift());
     });
 }
 
@@ -202,7 +203,6 @@ function PostGenerator() {
             handler.pluginName = subscription.pluginName;
             handler.unusedPosts = [];
             handler.noMorePosts = false;
-            handler.timedOut = false;
             subscriptionHandlers.push(handler);
         });
     }

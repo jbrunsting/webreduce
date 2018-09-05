@@ -1,26 +1,30 @@
-var HANDLER_TIMEOUT = 15000;
+var HANDLER_TIMEOUT = 10000;
 
 function testCode(code, setModal, onResult, onError, config, paginationData) {
     var timedOut = false;
     var completed = false;
 
     function onResultOrTimeout(result) {
-        completed = true;
-        if (timedOut) {
+        if (timedOut || completed) {
             return;
         }
+        completed = true;
         onResult(result);
     }
 
     function fetchPostsWithTimeout() {
-        fetchPosts(onResultOrTimeout, config, paginationData);
-
-        setTimeout(function() {
-            if (!completed) {
-                timedOut = true;
-                onError("Timed out waiting for fetchPosts callback");
-            }
-        }, HANDLER_TIMEOUT);
+        try {
+            fetchPosts(onResultOrTimeout, config, paginationData);
+            setTimeout(function() {
+                if (!completed) {
+                    timedOut = true;
+                    onError("Timed out waiting for fetchPosts callback");
+                }
+            }, HANDLER_TIMEOUT);
+        } catch(e) {
+            completed = true;
+            onError(e);
+        }
     }
 
     try {
