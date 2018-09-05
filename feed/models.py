@@ -1,10 +1,13 @@
-from django.contrib.auth.models import User
+import uuid
+
 from django.db import models
 
+from accounts.models import User
 from plugins.models import Plugin, PluginVersion
 
 
 class ConfiguredPlugin(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     plugin_version = models.ForeignKey(PluginVersion, on_delete=models.CASCADE)
     config = models.TextField()
@@ -14,6 +17,7 @@ class ConfiguredPlugin(models.Model):
 
 
 class ExternalRequest(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     plugin = models.ForeignKey(Plugin, on_delete=models.CASCADE)
     url = models.TextField()
