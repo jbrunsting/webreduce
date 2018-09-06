@@ -59,21 +59,25 @@ function getHandlerPosts(handler, callback) {
 function getPostHtml(post) {
     var postContent = document.createElement("li");
 
-    var title = document.createElement("h2");
+    var header = document.createElement("header");
+
+    var title = document.createElement("h3");
     title.appendChild(document.createTextNode(post.title));
 
     if (post.link) {
         var titleLink = document.createElement("a");
         titleLink.href = post.link
         titleLink.appendChild(title);
-        postContent.appendChild(titleLink);
+        header.appendChild(titleLink);
     } else {
-        postContent.appendChild(title);
+        header.appendChild(title);
     }
 
     var date = document.createElement("p");
     date.appendChild(document.createTextNode((new Date(post.date)).toLocaleString()));
-    postContent.appendChild(date);
+    header.appendChild(date);
+
+    postContent.appendChild(header);
 
     if (post.author) {
         var author = document.createElement("p");

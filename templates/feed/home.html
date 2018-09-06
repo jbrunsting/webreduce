@@ -1,20 +1,23 @@
-{% extends "base.html" %}
+{% extends "feed/base.html" %}
 
 {% block content %}
-<h1>Feed</h1>
 <div id="modal-container"></div>
-<p><a href="/feed/search">Find new plugin</a></p>
+<header class="with-nav">
+    <h1>Feed</h1>
+    <p><a href="/feed/search">Find new plugin</a></p>
+</header>
 <ul>
     {% for subscription in subscriptions %}
     <li>
-        <h3> <a href="/plugins/view/{{ subscription.plugin_version.id }}">
+        <h3>
+            <a href="/plugins/view/{{ subscription.plugin_version.id }}">
                 {{ subscription.plugin_version.plugin.name }} v{{ subscription.plugin_version.major_version }}.{{ subscription.plugin_version.minor_version }}
             </a>
         </h3>
         <p>
             {{ subscription.plugin_version.plugin.description }}
         </p>
-        <form action="/feed/unsubscribe/{{ subscription.plugin_version.id }}" method="post">
+        <form class="single-button" action="/feed/unsubscribe/{{ subscription.plugin_version.id }}" method="post">
             {% csrf_token %}
             <button type="submit">Unsubscribe</button>
         </form>
@@ -40,7 +43,7 @@
             v{{ new_version.major_version }}.{{ new_version.minor_version }}
         </a>
     </p>
-    <form action="/feed/update/{{ new_version.id }}" method="post">
+    <form class="single-button" action="/feed/update/{{ new_version.id }}" method="post">
         {% csrf_token %}
         <button type="submit">Update</button>
     </form>

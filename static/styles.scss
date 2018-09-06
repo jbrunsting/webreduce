@@ -1,0 +1,151 @@
+$accent: #F09D51;
+$dark: #313638;
+$medium: #EDEDED;
+$light: #F9F7F3;
+$text-dark: #08090A;
+$text-light: #FCFAF7;
+$link: #3D65CC;
+$link-visited: #6539BF;
+$text-highlight: #6291A0;
+
+$font-stack: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
+
+body {
+  background-color: $medium;
+  padding: 32px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-stack;
+  color: $text-dark;
+  margin: 0;
+}
+
+h1 {
+  font-size: 2em;
+}
+
+h2 {
+  font-size: 1.5em;
+}
+
+h3 {
+  font-size: 1.1em;
+}
+
+p, div {
+  color: $text-dark;
+  font-family: $font-stack;
+  font-size: 1em;
+  font-style: normal;
+  font-variant: normal;
+}
+
+ul {
+  background-color: $light;
+  border-radius: 3px;
+  padding: 0 16px;
+  list-style: none;
+  box-shadow: 0px 2px 4px 2px rgba($dark, 0.3);
+}
+
+li {
+  padding: 16px 0;
+  border-bottom: 1px solid;
+  border-top: 1px solid;
+  margin-top: -1px;
+  border-color: rgba($dark, 0.1);
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+li:first-child {
+  margin-top: 0;
+  border-top: none;
+}
+
+li:last-child {
+  border-bottom: none;
+}
+
+header {
+  h3 {
+    margin-bottom: 0;
+  }
+
+  p {
+    margin: 0;
+    font-size: 12px;
+  }
+
+  margin-bottom: 8px;
+}
+
+button {
+  font-size: 16px;
+  color: $text-dark;
+  border: none;
+  padding: 4px 8px;
+  background-color: $accent;
+  border-radius: 2px;
+  transition: box-shadow 200ms ease-in-out;
+  outline: none;
+}
+
+button:hover {
+  cursor: pointer;
+  box-shadow: 0px 1px 2px 1px rgba($dark, 0.3);
+}
+
+button:focus {
+  cursor: pointer;
+  box-shadow: 0px 1px 2px 1px rgba($dark, 0.3) inset;
+}
+
+button:disabled {
+  background-color: rgba($accent, 0.3);
+  cursor: auto;
+  box-shadow: none;
+}
+
+a {
+  text-decoration: none;
+  color: $link;
+}
+
+a:visited {
+  color: $link-visited;
+}
+
+::selection {
+  background: $text-highlight;
+}
+
+.content {
+  max-width: 1200px;
+  margin: auto;
+  padding: 16px;
+}
+
+.with-nav {
+  display: flex;
+  align-items: center;
+
+  h1, h2, h3 {
+    display: inline-block;
+    margin-right: auto;
+  }
+
+  p {
+    display: inline-block;
+    font-size: 1em;
+    margin: 0;
+    margin-left: 16px;
+  }
+
+  form {
+    margin-left: 16px;
+  }
+}

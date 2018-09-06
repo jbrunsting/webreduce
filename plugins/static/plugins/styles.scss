@@ -1,0 +1,16 @@
+$approved-color: #56E39F;
+$rejected-color: #D85050;
+
+.approved {
+  background-color: lighten($approved-color, 20%);
+  padding: 4px 8px;
+  border: 2px solid $approved-color;
+  border-radius: 3px;
+}
+
+.rejected {
+  background-color: lighten($rejected-color, 20%);
+  padding: 4px 8px;
+  border: 2px solid $rejected-color;
+  border-radius: 3px;
+}
