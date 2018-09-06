@@ -21,7 +21,7 @@ function testCode(code, setModal, onResult, onError, config, paginationData) {
                     onError("Timed out waiting for fetchPosts callback");
                 }
             }, HANDLER_TIMEOUT);
-        } catch(e) {
+        } catch (e) {
             completed = true;
             onError(e);
         }
@@ -34,7 +34,7 @@ function testCode(code, setModal, onResult, onError, config, paginationData) {
             throw "function 'fetchPosts' not defined";
         }
 
-        if (getConfigModal && (!config || (validateConfig && !validateConfig(config)))) {
+        if (typeof getConfigModal !== 'undefined' && (!config || (typeof validateConfig !== 'undefined' && !validateConfig(config)))) {
             setModal(getConfigModal(function(newConfig) {
                 setModal("");
                 config = newConfig;
@@ -43,7 +43,7 @@ function testCode(code, setModal, onResult, onError, config, paginationData) {
         } else {
             fetchPostsWithTimeout();
         }
-    } catch(e) {
+    } catch (e) {
         onError(e);
         return;
     }
