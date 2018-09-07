@@ -85,8 +85,10 @@
 
         if (typeof validateConfig !== "undefined") {
             subscription.configValid = validateConfig(subscription.config);
-        } else {
+        } else if (typeof getConfigModal !== "undefined") {
             subscription.configValid = !!subscription.config;
+        } else {
+            subscription.configValid = true;
         }
 
         if (typeof getConfigModal !== "undefined") {

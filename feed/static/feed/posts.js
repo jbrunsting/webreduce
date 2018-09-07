@@ -20,12 +20,12 @@ function getHandlerPosts(handler, callback) {
         for (var i = 0; i < result.posts.length; ++i) {
             post = result.posts[i];
             if (!post.title) {
-                console.log("Post has no title: " + JSON.stringify(post));
+                console.error("Post has no title: " + JSON.stringify(post));
                 continue;
             }
 
             if (!post.date instanceof Date || isNaN(post.date)) {
-                console.log("Post has an invalid date" + JSON.stringify(post));
+                console.error("Post has an invalid date: " + JSON.stringify(post));
                 continue;
             }
 
