@@ -71,6 +71,7 @@ body.unbounded {
 }
 
 .code-pane {
+  min-height: 70%;
   overflow: auto;
   resize: vertical;
   position: relative;
@@ -106,6 +107,11 @@ body.unbounded {
 
 .CodeMirror {
   height: auto !important;
+}
+
+.fullscreen-form {
+  display: flex;
+  flex-direction: column;
 }
 
 #error-output {

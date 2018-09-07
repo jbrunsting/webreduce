@@ -104,6 +104,19 @@ def home(request):
 
 
 class CreatePluginForm(forms.ModelForm):
+    name = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'label': '',
+            'placeholder': 'name',
+        }),
+        label='')
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'label': '',
+            'placeholder': 'description',
+        }),
+        label='')
+
     class Meta:
         model = Plugin
         fields = [
@@ -120,23 +133,16 @@ def get_create_plugin(request):
 
 def post_create_plugin(request):
     form = CreatePluginForm(request.POST)
-    error = None
     form.is_valid()
     if form.is_valid():
-        if Plugin.objects.filter(name=form.cleaned_data['name']).exists():
-            error = "Plugin with that name already exists"
-        else:
-            plugin = form.save(commit=False)
-            plugin.save()
-            plugin.owners.add(request.user)
-            plugin.save()
-            return redirect('/plugins/update/' + str(plugin.id))
-    else:
-        error = "Form invalid"
+        plugin = form.save(commit=False)
+        plugin.save()
+        plugin.owners.add(request.user)
+        plugin.save()
+        return redirect('/plugins/update/' + str(plugin.id))
 
     return render(request, 'plugins/create.html', {
         'form': form,
-        'error': error,
     })
 
 

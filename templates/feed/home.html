@@ -24,30 +24,34 @@
     </li>
     {% endfor %}
 </ul>
+{% if updates|length > 0 %}
 <h2>Updates</h2>
-{% for old_version, new_version in updates %}
-<li>
-    <h3>
-        {{ old_version.plugin.name }}
-    </h3>
-    <p>
-        {{ old_version.plugin.description }}
-    </p>
-    <p>
-        <a href="/plugins/view/{{ old_version.id }}">
-            v{{ old_version.major_version }}.{{ old_version.minor_version }}
-        </a>
-        →
-        <a href="/plugins/view/{{ new_version.id }}">
-            v{{ new_version.major_version }}.{{ new_version.minor_version }}
-        </a>
-    </p>
-    <form class="single-button" action="/feed/update/{{ new_version.id }}" method="post">
-        {% csrf_token %}
-        <button type="submit">Update</button>
-    </form>
-</li>
-{% endfor %}
+<ul>
+    {% for old_version, new_version in updates %}
+    <li>
+        <h3>
+            {{ old_version.plugin.name }}
+        </h3>
+        <p>
+            {{ old_version.plugin.description }}
+        </p>
+        <p>
+            <a href="/plugins/view/{{ old_version.id }}">
+                v{{ old_version.major_version }}.{{ old_version.minor_version }}
+            </a>
+            →
+            <a href="/plugins/view/{{ new_version.id }}">
+                v{{ new_version.major_version }}.{{ new_version.minor_version }}
+            </a>
+        </p>
+        <form class="single-button" action="/feed/update/{{ new_version.id }}" method="post">
+            {% csrf_token %}
+            <button type="submit">Update</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
 <ul id="main-feed">
 </ul>
 <button id="prev-page">Previous</button>
