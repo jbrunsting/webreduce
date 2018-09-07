@@ -1,5 +1,7 @@
 $approved-color: #56E39F;
 $rejected-color: #D85050;
+$codemirror-background: #F7F7F7;
+$codemirror-border: #DDD;
 
 .approved {
   background-color: lighten($approved-color, 20%);
@@ -13,4 +15,104 @@ $rejected-color: #D85050;
   padding: 4px 8px;
   border: 2px solid $rejected-color;
   border-radius: 3px;
+}
+
+.error {
+  background-color: lighten($rejected-color, 20%);
+  padding: 4px 8px;
+  border: 2px solid $rejected-color;
+  border-radius: 3px;
+}
+
+body.unbounded {
+  margin: 0;
+  padding: 0;
+
+  .error {
+    margin: 0;
+    border-radius: 0;
+    border: none;
+  }
+
+  h1 {
+    margin: 16px;
+  }
+
+  p {
+    margin: 16px;
+  }
+
+  .code-title {
+    margin: 0;
+  }
+
+  form {
+    margin-bottom: 16px;
+  }
+}
+
+.code-title {
+  margin: 0;
+  font-size: 1.1em;
+  background-color: $codemirror-background;
+  border-bottom: 1px solid $codemirror-border;
+  padding: 8px;
+}
+
+.panes {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  justify-content: space-between;
+}
+
+.code-pane {
+  overflow: auto;
+  resize: vertical;
+  position: relative;
+  background-color: $codemirror-background;
+  border-bottom: 1px solid $codemirror-border;
+
+  button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 4px;
+  }
+}
+
+.bottom-pane {
+  overflow: auto;
+  margin-bottom: auto;
+}
+
+.half {
+  width: calc(50% - 16px);
+  margin: 8px;
+  display: inline-block;
+
+  label {
+    margin-left: 0;
+  }
+
+  &.right {
+    float: right;
+  }
+}
+
+.CodeMirror {
+  height: auto !important;
+}
+
+#error-output {
+  margin: 0;
+}
+
+#test-code {
+  width: calc(100% - 16px);
+  margin: 8px;
 }

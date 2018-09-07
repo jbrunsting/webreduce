@@ -1,11 +1,10 @@
-{% extends "plugins/base.html" %}
+{% extends "plugins/code_base.html" %}
 
 {% block content %}
 
 {% include "plugins/codemirror.html" %}
 
-<h1>{{ plugin_version.plugin.name}} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}</h1>
-<p>{{ plugin_version.plugin.description }}</p>
+<h1 class="code-title">{{ plugin_version.plugin.name}} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}</h1>
 <div class="code readonly">{{ plugin_version.code }}</div>
 
 {% load static %}

@@ -1,25 +1,31 @@
 {% load static %}
 <script src={% static "plugins/tester.js" %}></script>
 
-<div id="modal-container"></div>
-<label for="config-input">Existing config</label>
-<textarea id="config-input" class="code"></textarea>
-<label for="pagination-data-input">Existing pagination data</label>
-<textarea id="pagination-data-input" class="code"></textarea>
-<button id="test-code">Test code</button>
+<div class="half left ">
+    <label for="config-input">Existing config</label>
+    <textarea id="config-input"></textarea>
+</div>
+<div class="half right">
+    <label for="pagination-data-input">Existing pagination data</label>
+    <textarea id="pagination-data-input"></textarea>
+</div>
 <p id="error-output"></p>
-<textarea id="test-output" class="code"></textarea>
+<button id="test-code">Test code</button>
+<textarea id="test-output"></textarea>
+
 <script>
     var configEditor = CodeMirror.fromTextArea($("#config-input")[0], {
         "mode": "javascript",
         "lineNumbers": true,
-        "lineWrapping": true
+        "lineWrapping": true,
+        "scrollbarStyle": "null"
     });
 
     var paginationDataEditor = CodeMirror.fromTextArea($("#pagination-data-input")[0], {
         "mode": "javascript",
         "lineNumbers": true,
-        "lineWrapping": true
+        "lineWrapping": true,
+        "scrollbarStyle": "null"
     });
 
     var testOutput = CodeMirror.fromTextArea($("#test-output")[0], {
@@ -27,6 +33,7 @@
         "lineNumbers": true,
         "lineWrapping": true,
         "readOnly": true,
+        "scrollbarStyle": "null"
     });
 
     var modalContainer = $("#modal-container")[0];

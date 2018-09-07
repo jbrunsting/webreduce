@@ -221,24 +221,33 @@ def remove_ownership(request, plugin_id):
 
 
 class CreateVersionForm(forms.ModelForm):
+    code = forms.CharField(
+        label='',
+        widget=forms.Textarea(attrs={
+            'cols': 80,
+            'rows': 50,
+            'class': 'code'
+        }))
+
     class Meta:
         model = PluginVersion
         fields = [
-            'code',
             'major_version',
             'minor_version',
+            'code',
         ]
-        widgets = {
-            'code': forms.Textarea(attrs={
-                'cols': 80,
-                'rows': 50,
-                'class': 'code'
-            }),
-        }
 
 
 def get_create_version(request, plugin):
-    code = STARTER_CODE
+    code = forms.CharField(
+        label='',
+        initial=STARTER_CODE,
+        widget=forms.Textarea(attrs={
+            'cols': 80,
+            'rows': 50,
+            'class': 'code'
+        }))
+
     major_version = 1
     minor_version = 0
     for version in plugin.pluginversion_set.all():
@@ -296,8 +305,9 @@ def post_create_version(request, plugin):
     else:
         error = "Form invalid"
 
-    return render(request, 'plugins/create.html', {
+    return render(request, 'plugins/update.html', {
         'form': form,
+        'plugin': plugin,
         'error': error,
     })
 
@@ -321,18 +331,19 @@ def create_version(request, plugin_id):
 
 
 class EditVersionForm(forms.ModelForm):
+    code = forms.CharField(
+        label='',
+        widget=forms.Textarea(attrs={
+            'cols': 80,
+            'rows': 50,
+            'class': 'code'
+        }))
+
     class Meta:
         model = PluginVersion
         fields = [
             'code',
         ]
-        widgets = {
-            'code': forms.Textarea(attrs={
-                'cols': 80,
-                'rows': 50,
-                'class': 'code'
-            }),
-        }
 
 
 def get_edit_version(request, version, error=None):

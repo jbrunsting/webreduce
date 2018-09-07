@@ -10,13 +10,17 @@ function setupCodeBlocks() {
                 "mode": "javascript",
                 "lineNumbers": true,
                 "lineWrapping": true,
-                "readOnly": true
+                "readOnly": true,
+                "scrollbarStyle": "null",
+                "viewportMargin": Infinity
             });
         } else {
             editor = CodeMirror.fromTextArea(code, {
                 "mode": "javascript",
                 "lineNumbers": true,
-                "lineWrapping": true
+                "lineWrapping": true,
+                "scrollbarStyle": "null",
+                "viewportMargin": Infinity
             });
         }
         codeEditors[code] = editor;

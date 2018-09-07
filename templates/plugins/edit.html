@@ -1,24 +1,25 @@
-{% extends "plugins/base.html" %}
+{% extends "plugins/code_base.html" %}
 
 {% block content %}
 
 {% include "plugins/codemirror.html" %}
 
-<h1>{{ version.plugin.name }} v{{ version.major_version }}.{{ version.minor_version }}</h1>
-<h2>Owners</h2>
-<ul>
-    {% for owner in version.plugin.owners.all %}
-    <li>{{ owner }}</li>
-    {% endfor %}
-</ul>
-{% if error is not None %}
-<p>Error: {{ error }}</p>
-{% endif %}
-<form method="post">
-    {% csrf_token %}
-    {{form}}
-    <button type="submit">Submit</button>
-</form>
+<div class="panes">
+    <div class="code-pane">
+        <h1 class="code-title">{{ version.plugin.name }} v{{ version.major_version }}.{{ version.minor_version }}</h1>
+        {% if error is not None %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            {{form}}
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <div class="bottom-pane">
+        {% include "plugins/test_code.html" with get_code="getCode" %}
+    </div>
+</div>
 
 {% load static %}
 <script src={% static "plugins/editor.js" %}></script>
@@ -29,7 +30,5 @@
         return editors[$("#id_code")[0]].getValue();
     }
 </script>
-
-{% include "plugins/test_code.html" with get_code="getCode" %}
 
 {% endblock %}

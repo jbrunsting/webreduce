@@ -12,7 +12,7 @@ $font-stack: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida San
 
 body {
   background-color: $medium;
-  padding: 32px;
+  padding: 16px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -120,7 +120,13 @@ a:visited {
 }
 
 ::selection {
+  color: $text-light;
   background: $text-highlight;
+}
+
+input[type="number"] {
+  width: 50px;
+  font-size: 1em;
 }
 
 .content {
@@ -148,4 +154,14 @@ a:visited {
   form {
     margin-left: 16px;
   }
+}
+
+label {
+  font-size: 1em;
+  font-weight: 500;
+  margin: 4px 4px 4px 8px;
+}
+
+input {
+  margin: 4px 8px 4px 4px;
 }
