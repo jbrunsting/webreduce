@@ -40,10 +40,12 @@ def home(request):
     subscriptions = ConfiguredPlugin.objects.filter(user=request.user)
     plugin_versions = [s.plugin_version for s in subscriptions]
     updates = get_updates(plugin_versions)
-    return render(request, 'feed/home.html', {
-        'subscriptions': subscriptions,
-        'updates': updates
-    })
+    return render(
+        request, 'feed/home.html', {
+            'subscriptions': subscriptions,
+            'updates': updates,
+            'divide_into_pages': False,
+        })
 
 
 class SearchForm(forms.Form):

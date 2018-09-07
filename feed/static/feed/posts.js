@@ -215,5 +215,11 @@ function PostGenerator() {
         return getPostsHtml(subscriptionHandlers, count, callback);
     }
 
+    generator.hasMorePosts = function() {
+        return subscriptionHandlers.some(function(handler) {
+            return !handler.noMorePosts;
+        });
+    }
+
     return generator;
 }

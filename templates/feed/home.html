@@ -53,18 +53,19 @@
 </ul>
 {% endif %}
 <ul id="main-feed">
-    <li class="posts-loading-placeholder">
+    <li id="posts-loading-placeholder">
         <div class="loader"></div>
     </li>
-    <li class="posts-empty-placeholder start-hidden">Nothing to see here! Setup a <a href="/feed/search">new plugin</a> to get more posts</li>
+    <li id="posts-empty-placeholder" class="start-hidden">Nothing to see here! Setup a <a href="/feed/search">new plugin</a> to get more posts</li>
 </ul>
+{% if divide_into_pages %}
 <button id="prev-page">Previous</button>
 <button id="next-page">Next</button>
+{% endif %}
 
 {% load static %}
-<script src={% static "feed/posts.js" %}></script>
-<script src={% static "feed/pagination.js" %}></script>
 <script src={% static "feed/configuration.js" %}></script>
+<script src={% static "feed/posts.js" %}></script>
 <script>
     var subscriptions = []
 
@@ -108,8 +109,8 @@
 </script>
 {% endfor %}
 <script>
-    emptyPlaceholder = $(".posts-empty-placeholder")[0].cloneNode(true);
-    loadingPlaceholder = $(".posts-loading-placeholder")[0].cloneNode(true);
+    var POSTS_PER_PAGE = 5;
+    var POST_BUFFER = 200;
 
     postGenerator = PostGenerator();
 
@@ -117,22 +118,46 @@
         return subscription.configValid;
     }));
 
-    var ul = $("#main-feed")[0];
-    var nextBtn = $("#next-page")[0];
-    var prevBtn = $("#prev-page")[0];
-    setupPagination(postGenerator, nextBtn, prevBtn, function(posts) {
-        while (ul.firstChild) {
-            ul.removeChild(ul.firstChild);
+    var loadingPosts = false;
+
+    function getMorePosts(onComplete) {
+        if (loadingPosts) {
+            return;
         }
 
-        posts.forEach(function(post) {
-            ul.appendChild(post);
+        loadingPosts = true;
+        postGenerator.getPostsHtml(POSTS_PER_PAGE, function(posts) {
+            posts.forEach(function(post) {
+                $("#posts-loading-placeholder").first().before(post);
+            });
+
+            if (posts.length > 0) {
+                $("#posts-empty-placeholder").remove();
+            }
+
+            if (!postGenerator.hasMorePosts()) {
+                $("#posts-empty-placeholder").show();
+                $("#posts-loading-placeholder").hide();
+            }
+
+            loadingPosts = false;
+            onComplete();
         });
+    }
 
-        if (posts.length == 0) {
-            ul.appendChild(emptyPlaceholder.cloneNode(true));
-            emptyPlaceholder = $(".posts-empty-placeholder").show();
+    var documentNode = $(document);
+    var windowNode = $(window);
+
+    function getPostsIfRequired() {
+        if (!loadingPosts && postGenerator.hasMorePosts() && documentNode.height() - documentNode.scrollTop() <= windowNode.height() + POST_BUFFER) {
+            getMorePosts(getPostsIfRequired);
         }
+    }
+
+    getPostsIfRequired();
+
+    windowNode.scroll(function() {
+        getPostsIfRequired();
     });
 
     var modalContainer = $("#modal-container")[0];
