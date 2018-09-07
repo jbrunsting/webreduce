@@ -61,6 +61,8 @@ function setupPagination(postGenerator, nextBtn, prevBtn, setPosts) {
     bufferNextPage(function(hasNextPage) {
         if (hasNextPage) {
             nextPage();
+        } else {
+            setPosts([]);
         }
     });
 

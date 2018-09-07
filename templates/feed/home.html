@@ -53,6 +53,10 @@
 </ul>
 {% endif %}
 <ul id="main-feed">
+    <li class="posts-loading-placeholder">
+        <div class="loader"></div>
+    </li>
+    <li class="posts-empty-placeholder start-hidden">Nothing to see here! Setup a <a href="/feed/search">new plugin</a> to get more posts</li>
 </ul>
 <button id="prev-page">Previous</button>
 <button id="next-page">Next</button>
@@ -100,6 +104,9 @@
 </script>
 {% endfor %}
 <script>
+    emptyPlaceholder = $(".posts-empty-placeholder")[0].cloneNode(true);
+    loadingPlaceholder = $(".posts-loading-placeholder")[0].cloneNode(true);
+
     postGenerator = PostGenerator();
 
     postGenerator.setSubscriptions(subscriptions.filter(function(subscription) {
@@ -117,6 +124,11 @@
         posts.forEach(function(post) {
             ul.appendChild(post);
         });
+
+        if (posts.length == 0) {
+            ul.appendChild(emptyPlaceholder.cloneNode(true));
+            emptyPlaceholder = $(".posts-empty-placeholder").show();
+        }
     });
 
     var modalContainer = $("#modal-container")[0];

@@ -106,16 +106,12 @@ def home(request):
 class CreatePluginForm(forms.ModelForm):
     name = forms.CharField(
         widget=forms.TextInput(attrs={
-            'label': '',
             'placeholder': 'name',
-        }),
-        label='')
+        }), label='')
     description = forms.CharField(
         widget=forms.Textarea(attrs={
-            'label': '',
             'placeholder': 'description',
-        }),
-        label='')
+        }), label='')
 
     class Meta:
         model = Plugin

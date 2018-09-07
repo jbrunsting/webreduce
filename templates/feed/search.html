@@ -1,12 +1,14 @@
 {% extends "feed/base.html" %}
 
 {% block content %}
-<h1>Search</h1>
-<form action="/feed/search" method="post">
-    {% csrf_token %}
-    {{ form }}
-    <button type="submit">Search</button>
-</form>
+<header class="with-nav">
+    <h1>Search</h1>
+    <form action="/feed/search" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit">Search</button>
+    </form>
+</header>
 
 <h2>Top Plugins</h2>
 
@@ -31,8 +33,9 @@
     {% endfor %}
 </ul>
 
-<h2>Results</h2>
+<h2>Search Results</h2>
 <ul>
+    {% if results|length > 0 %}
     {% for plugin_version in results %}
     <li>
         <h3>
@@ -51,5 +54,8 @@
         {% endif %}
     </li>
     {% endfor %}
+    {% else %}
+    <li class="empty-placeholder">Enter a search term to find more plugins</li>
+    {% endif %}
 </ul>
 {% endblock %}

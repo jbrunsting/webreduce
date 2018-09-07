@@ -47,7 +47,10 @@ def home(request):
 
 
 class SearchForm(forms.Form):
-    search_term = forms.CharField()
+    search_term = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Search',
+        }), label='')
 
 
 def newest_versions(versions):
