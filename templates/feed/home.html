@@ -223,7 +223,8 @@
         });
     }
 
-    generatePosts();
+    window.history.replaceState({}, document.title, "/feed");
 
+    generatePosts();
 </script>
 {% endblock %}
