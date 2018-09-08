@@ -104,15 +104,11 @@ def search(request):
             plugin_count=Count('plugin_version__plugin')).order_by(
                 '-plugin_count')[:10]
 
-    print(top_plugins)
-
     top_versions = []
     for plugin_info in top_plugins:
         plugin_pk = plugin_info['plugin_version__plugin']
         plugin = Plugin.objects.get(pk=plugin_pk)
         top_versions.append(newest_versions(plugin.pluginversion_set.all())[0])
-
-    print(top_versions)
 
     return render(
         request, 'feed/search.html', {
@@ -136,7 +132,7 @@ def subscribe(request, plugin_version_id):
         user=request.user, plugin_version=plugin_version)
     configured_plugin.save()
 
-    return redirect('/feed')
+    return redirect('/feed?configure=' + str(configured_plugin.id))
 
 
 @login_required
