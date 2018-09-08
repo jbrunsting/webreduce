@@ -3,7 +3,8 @@
 {% block content %}
 <header class="with-nav">
     <h1>Plugins</h1>
-    <p><a href="/plugins/create">New plugin</a></p>
+    <p><a href="/plugins/create">New Plugin</a></p>
+    <p><a href="/feed">Feed</a></p>
 </header>
 {% for plugin, versions in plugins.items %}
 <ul>
@@ -11,7 +12,7 @@
         <header class="with-nav">
             <h3>{{ plugin.name }}</h3>
             <p><a href="/plugins/ownership/{{ plugin.id }}">Ownership</a></p>
-            <p><a href="/plugins/update/{{ plugin.id }}">New version</a></p>
+            <p><a href="/plugins/update/{{ plugin.id }}">New Version</a></p>
         </header>
         <p>{{ plugin.description }}</p>
     </li>

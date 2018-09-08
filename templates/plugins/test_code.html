@@ -1,6 +1,4 @@
 {% load static %}
-<script src={% static "plugins/tester.js" %}></script>
-
 <div class="half left ">
     <label for="config-input">Existing config</label>
     <textarea id="config-input"></textarea>
@@ -13,6 +11,8 @@
 <button id="test-code">Test code</button>
 <textarea id="test-output"></textarea>
 
+<script src={% static "modal.js" %}></script>
+<script src={% static "plugins/tester.js" %}></script>
 <script>
     var configEditor = CodeMirror.fromTextArea($("#config-input")[0], {
         "mode": "javascript",
@@ -35,18 +35,6 @@
         "readOnly": true,
         "scrollbarStyle": "null"
     });
-
-    var modalContainer = $("#modal-container")[0];
-
-    function setModal(modal) {
-        while (modalContainer.firstChild) {
-            modalContainer.removeChild(modalContainer.firstChild);
-        }
-
-        if (modal) {
-            modalContainer.appendChild(modal);
-        }
-    }
 
     function onError(error) {
         $("#error-output").text(error);
@@ -90,7 +78,7 @@
 
         /* beautify preserve:start */
         {% if get_code %}
-        testCode({{ get_code }}(), setModal, onResult, onError, config, paginationData);
+        testCode({{ get_code }}(), showModal, onResult, onError, config, paginationData);
         {% else %}
         onError("Couldn't fetch code from text input");
         {% endif %}

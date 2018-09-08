@@ -152,11 +152,17 @@ def create_plugin(request):
 
 
 class AddOwnerForm(forms.Form):
-    owner = forms.CharField()
+    owner = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Owner',
+        }), label='')
 
 
 class RemoveOwnerForm(forms.Form):
-    owner = forms.CharField()
+    owner = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Owner',
+        }), label='')
 
 
 @login_required
@@ -241,15 +247,7 @@ class CreateVersionForm(forms.ModelForm):
 
 
 def get_create_version(request, plugin):
-    code = forms.CharField(
-        label='',
-        initial=STARTER_CODE,
-        widget=forms.Textarea(attrs={
-            'cols': 80,
-            'rows': 50,
-            'class': 'code'
-        }))
-
+    code = STARTER_CODE
     major_version = 1
     minor_version = 0
     for version in plugin.pluginversion_set.all():

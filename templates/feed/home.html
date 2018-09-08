@@ -2,25 +2,28 @@
 
 {% block content %}
 <header class="with-nav">
-    <h1>Feed</h1>
-    <p><a href="/feed/search">Find new plugin</a></p>
+    <h2>Plugins</h2>
+    <p><a href="/plugins">Plugin Creator</a></p>
+    <p><a href="/feed/search">Plugin Search</a></p>
 </header>
 <ul>
     {% for subscription in subscriptions %}
     <li>
-        <h3>
-            <a href="/plugins/view/{{ subscription.plugin_version.id }}">
-                {{ subscription.plugin_version.plugin.name }} v{{ subscription.plugin_version.major_version }}.{{ subscription.plugin_version.minor_version }}
-            </a>
-        </h3>
+        <header class="with-nav">
+            <h3>
+                <a href="/plugins/view/{{ subscription.plugin_version.id }}">
+                    {{ subscription.plugin_version.plugin.name }} v{{ subscription.plugin_version.major_version }}.{{ subscription.plugin_version.minor_version }}
+                </a>
+            </h3>
+            <form class="single-button" action="/feed/unsubscribe/{{ subscription.plugin_version.id }}" method="post">
+                {% csrf_token %}
+                <button type="submit">Unsubscribe</button>
+            </form>
+            <button id="configure-{{ subscription.id }}">Configure</button>
+        </header>
         <p>
             {{ subscription.plugin_version.plugin.description }}
         </p>
-        <form class="single-button" action="/feed/unsubscribe/{{ subscription.plugin_version.id }}" method="post">
-            {% csrf_token %}
-            <button type="submit">Unsubscribe</button>
-        </form>
-        <button id="configure-{{ subscription.id }}">Configure</button>
     </li>
     {% endfor %}
 </ul>
@@ -28,13 +31,10 @@
 <h2>Updates</h2>
 <ul>
     {% for old_version, new_version in updates %}
-    <li>
+    <li class="with-nav">
         <h3>
             {{ old_version.plugin.name }}
         </h3>
-        <p>
-            {{ old_version.plugin.description }}
-        </p>
         <p>
             <a href="/plugins/view/{{ old_version.id }}">
                 v{{ old_version.major_version }}.{{ old_version.minor_version }}
@@ -52,6 +52,7 @@
     {% endfor %}
 </ul>
 {% endif %}
+<h2>Feed</h2>
 <ul id="main-feed">
     <li id="posts-loading-placeholder">
         <div class="loader"></div>
@@ -66,6 +67,7 @@
 {% load static %}
 <script src={% static "feed/configuration.js" %}></script>
 <script src={% static "feed/posts.js" %}></script>
+<script src={% static "modal.js" %}></script>
 <script>
     var subscriptions = []
 
@@ -85,12 +87,12 @@
         {{ subscription.plugin_version.code|safe }}
         /* beautify preserve:end */
 
-        if (typeof validateConfig !== "undefined") {
-            subscription.configValid = validateConfig(subscription.config);
-        } else if (typeof getConfigModal !== "undefined") {
-            subscription.configValid = !!subscription.config;
-        } else {
+        if (typeof getConfigModal === "undefined") {
             subscription.configValid = true;
+        } else if (typeof validateConfig !== "undefined") {
+            subscription.configValid = validateConfig(subscription.config);
+        } else {
+            subscription.configValid = !!subscription.config;
         }
 
         if (typeof getConfigModal !== "undefined") {
@@ -160,51 +162,15 @@
         getPostsIfRequired();
     });
 
-    var modalContainer = $("#modal-container")[0];
+    function onConfig() {
 
-    function setModal(modal) {
-        while (modalContainer.firstChild) {
-            modalContainer.removeChild(modalContainer.firstChild);
-        }
-
-        if (modal) {
-            modalContainer.appendChild(modal);
-        }
     }
 
-    var configHandlers = [];
     subscriptions.forEach(function(subscription) {
-        if (subscription.getConfigModal) {
-            var configBtn = $("#configure-" + subscription.id)[0];
-            var handler = ConfigHandler(subscription, setModal, "{{ csrf_token }}");
-            handler.setConfigBtn(configBtn);
-            configHandlers.push(handler);
-        }
+        $("#configure-" + subscription.id).click(function() {
+            configure(subscription, showModal, "{{ csrf_token }}", onConfig);
+        });
     });
-
-    var firstNotConfigured
-    for (var i = 0; i < configHandlers.length; ++i) {
-        if (!firstNotConfigured && !configHandlers[i].configured()) {
-            firstNotConfigured = configHandlers[i];
-        }
-
-        (function() {
-            var j = i;
-            configHandlers[j].setOnSave(function() {
-                for (var k = j; k < configHandlers.length - 1; ++k) {
-                    var handler = configHandlers[k + 1];
-                    if (!handler.configured()) {
-                        handler.showModal();
-                        break;
-                    }
-                }
-            });
-        })();
-    }
-
-    if (firstNotConfigured) {
-        firstNotConfigured.showModal();
-    }
 
 </script>
 {% endblock %}

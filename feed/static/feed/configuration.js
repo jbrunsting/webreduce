@@ -9,37 +9,19 @@ function saveConfig(subscriptionId, config, csrfToken) {
     });
 }
 
-function ConfigHandler(subscription, setModal, csrfToken) {
-    var onSave;
-    handler = {};
+function getModal(subscription, onConfig) {
+    var container = $("<div></div>");
+    if (subscription.getConfigModal) {
+        container.append(subscription.getConfigModal(onConfig, subscription.config));
+    }
+    return container.get();
+}
 
-    function save(config) {
+function configure(subscription, showModal, csrfToken, onConfig, onCancel) {
+    var modal = getModal(subscription, function(config) {
+        hideModal();
         saveConfig(subscription.id, config, csrfToken);
-        setModal();
-        if (onSave) {
-            onSave();
-        }
-    }
-
-    handler.showModal = function() {
-        setModal(subscription.getConfigModal(save, subscription.config));
-    }
-
-    handler.configured = function() {
-        return subscription.configValid;
-    }
-
-    handler.setConfigBtn = function(configBtn) {
-        if (!subscription.getConfigModal) {
-            configBtn.disabled = true;
-        } else {
-            configBtn.onclick = handler.showModal;
-        }
-    }
-
-    handler.setOnSave = function(callback) {
-        onSave = callback;
-    }
-
-    return handler;
+        onConfig(config);
+    });
+    showModal(modal, onCancel);
 }

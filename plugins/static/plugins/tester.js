@@ -1,8 +1,14 @@
 var HANDLER_TIMEOUT = 10000;
 
-function testCode(code, setModal, onResult, onError, config, paginationData) {
+function testCode(code, showModal, onResult, onError, config, paginationData) {
     var timedOut = false;
     var completed = false;
+
+    function configured() {
+        return typeof getConfigModal === 'undefined' ||
+            (typeof validateConfig === 'undefined' && !!config) ||
+            (typeof validateConfig !== 'undefined' && validateConfig(config));
+    }
 
     function onResultOrTimeout(result) {
         if (timedOut || completed) {
@@ -13,6 +19,11 @@ function testCode(code, setModal, onResult, onError, config, paginationData) {
     }
 
     function fetchPostsWithTimeout() {
+        if (!configured()) {
+            onError("The plugin config is not valid");
+            return;
+        }
+
         try {
             fetchPosts(onResultOrTimeout, config, paginationData);
             setTimeout(function() {
@@ -34,14 +45,16 @@ function testCode(code, setModal, onResult, onError, config, paginationData) {
             throw "function 'fetchPosts' not defined";
         }
 
-        if (typeof getConfigModal !== 'undefined' && (!config || (typeof validateConfig !== 'undefined' && !validateConfig(config)))) {
-            setModal(getConfigModal(function(newConfig) {
-                setModal("");
+        if (configured()) {
+            fetchPostsWithTimeout();
+        } else {
+            showModal(getConfigModal(function(newConfig) {
+                hideModal();
                 config = newConfig;
                 fetchPostsWithTimeout();
-            }, config));
-        } else {
-            fetchPostsWithTimeout();
+            }, config), function() {
+                onError("The plugin configuration was canceled");
+            });
         }
     } catch (e) {
         onError(e);

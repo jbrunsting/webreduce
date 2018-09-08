@@ -119,18 +119,26 @@ function fillPostBuffers(subscriptionHandlers, callback) {
     }
 
     var handlersPending = handlersNeedingPosts.length;
+
     handlersNeedingPosts.forEach(function(handler, i) {
-        getHandlerPosts(handler, function() {
+        function onHandlerComplete() {
             if (timedOut) {
                 return;
             }
-
             --handlersPending;
             handlersComplete[i] = true;
             if (handlersPending <= 0) {
                 callback();
             }
-        });
+        }
+
+        try {
+            getHandlerPosts(handler, onHandlerComplete);
+        } catch(e) {
+            console.error("Plugin " + handler.pluginName + " threw an error while fetching posts: " + e);
+            handler.noMorePosts = true;
+            onHandlerComplete();
+        }
     });
 
     setTimeout(function() {
