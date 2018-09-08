@@ -1,28 +1,5 @@
-$approved-color: #56E39F;
-$rejected-color: #D85050;
 $codemirror-background: #F7F7F7;
 $codemirror-border: #DDD;
-
-.approved {
-  background-color: lighten($approved-color, 20%);
-  padding: 4px 8px;
-  border: 2px solid $approved-color;
-  border-radius: 3px;
-}
-
-.rejected {
-  background-color: lighten($rejected-color, 20%);
-  padding: 4px 8px;
-  border: 2px solid $rejected-color;
-  border-radius: 3px;
-}
-
-.error {
-  background-color: lighten($rejected-color, 20%);
-  padding: 4px 8px;
-  border: 2px solid $rejected-color;
-  border-radius: 3px;
-}
 
 body.unbounded {
   margin: 0;

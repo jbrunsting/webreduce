@@ -15,6 +15,9 @@
                     {{ subscription.plugin_version.plugin.name }} v{{ subscription.plugin_version.major_version }}.{{ subscription.plugin_version.minor_version }}
                 </a>
             </h3>
+            <p id="error-{{ subscription.id }}" class="info-tag error-info start-hidden">
+                Invalid config
+            </p>
             <form class="single-button" action="/feed/unsubscribe/{{ subscription.plugin_version.id }}" method="post">
                 {% csrf_token %}
                 <button type="submit">Unsubscribe</button>
@@ -182,6 +185,22 @@
         }
     }
 
+    function showConfigErrors(toIgnore) {
+        subscriptions.forEach(function(subscription) {
+            errorNode = $("#error-" + subscription.id);
+            if (subscription.id === toIgnore) {
+                errorNode.hide();
+                return;
+            }
+
+            if (subscription.configValid) {
+                errorNode.hide();
+            } else {
+                errorNode.show();
+            }
+        });
+    }
+
     function onConfig(subscription, config) {
         subscription.config = config;
         if (subscription.validateConfig) {
@@ -189,6 +208,8 @@
         } else {
             subscription.configValid = !!subscription.config;
         }
+
+        showConfigErrors();
 
         generatePosts();
     }
@@ -218,13 +239,20 @@
             if (subscription.id === toConfigure) {
                 configure(subscription, showModal, "{{ csrf_token }}", function(config) {
                     onConfig(subscription, config);
+                }, function() {
+                    showConfigErrors();
                 });
             }
         });
+
+        showConfigErrors(toConfigure);
+    } else {
+        showConfigErrors();
     }
 
     window.history.replaceState({}, document.title, "/feed");
 
     generatePosts();
+
 </script>
 {% endblock %}

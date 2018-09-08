@@ -7,6 +7,8 @@ $text-light: #FCFAF7;
 $link: #3D65CC;
 $link-visited: #6539BF;
 $text-highlight: #6291A0;
+$approved-color: #56E39F;
+$error-color: #D85050;
 
 $font-stack: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
 
@@ -168,6 +170,7 @@ textarea {
 .with-nav {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 
   h1, h2, h3 {
     display: inline-block;
@@ -177,8 +180,7 @@ textarea {
   p {
     display: inline-block;
     font-size: 1em;
-    margin: 0;
-    margin-left: 16px;
+    margin: 4px 8px;
   }
 
   form {
@@ -199,6 +201,32 @@ textarea {
 
 .start-hidden {
   display: none;
+}
+
+.info-tag {
+  padding: 2px 4px;
+  margin: 0 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.with-nav {
+  .info-tag {
+    padding: 2px 4px;
+    margin: 0 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+}
+
+.approved-info {
+  background-color: lighten($approved-color, 20%);
+  border: 2px solid $approved-color;
+}
+
+.error-info {
+  background-color: lighten($error-color, 20%);
+  border: 2px solid $error-color;
 }
 
 @keyframes spin {

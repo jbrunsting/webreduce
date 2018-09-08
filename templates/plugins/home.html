@@ -22,10 +22,10 @@
             <h3><a href="/plugins/view/{{ version.id }}">v{{ version.major_version }}.{{ version.minor_version }}</a></h3>
             {% if version.published %}
             {% if version.approved %}
-            <p class="approved">Approved</p>
+            <p class="info-tag approved-info">Approved</p>
             {% elif version.rejected %}
             <p>{{ version.rejection_reason }}</p>
-            <p class="rejected">Rejected</p>
+            <p class="info-tag error-info">Rejected</p>
             {% else %}
             Pending approval
             {% endif %}
