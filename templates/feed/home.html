@@ -87,12 +87,8 @@
         {{ subscription.plugin_version.code|safe }}
         /* beautify preserve:end */
 
-        if (typeof getConfigModal === "undefined") {
-            subscription.configValid = true;
-        } else if (typeof validateConfig !== "undefined") {
-            subscription.configValid = validateConfig(subscription.config);
-        } else {
-            subscription.configValid = !!subscription.config;
+        if (typeof validateConfig !== "undefined") {
+            subscription.validateConfig = validateConfig;
         }
 
         if (typeof getConfigModal !== "undefined") {
@@ -101,6 +97,14 @@
 
         if (typeof fetchPosts != "undefined") {
             subscription.fetchPosts = fetchPosts;
+        }
+
+        if (!subscription.getConfigModal) {
+            subscription.configValid = true;
+        } else if (subscription.validateConfig) {
+            subscription.configValid = subscription.validateConfig(subscription.config);
+        } else {
+            subscription.configValid = !!subscription.config;
         }
     })();
 
@@ -111,64 +115,89 @@
 </script>
 {% endfor %}
 <script>
-    var POSTS_PER_PAGE = 5;
-    var POST_BUFFER = 200;
+    // TODO: Move to seperate file
+    var removeExistingScrollListener;
 
-    postGenerator = PostGenerator();
+    function generatePosts() {
+        var POSTS_PER_PAGE = 5;
+        var POST_BUFFER = 200;
+        var NUM_PLACEHOLDERS = 2;
 
-    postGenerator.setSubscriptions(subscriptions.filter(function(subscription) {
-        return subscription.configValid;
-    }));
-
-    var loadingPosts = false;
-
-    function getMorePosts(onComplete) {
-        if (loadingPosts) {
-            return;
+        if (removeExistingScrollListener) {
+            removeExistingScrollListener();
         }
 
-        loadingPosts = true;
-        postGenerator.getPostsHtml(POSTS_PER_PAGE, function(posts) {
-            posts.forEach(function(post) {
-                $("#posts-loading-placeholder").first().before(post);
+        var postGenerator = PostGenerator();
+        postGenerator.setSubscriptions(subscriptions.filter(function(subscription) {
+            return subscription.configValid;
+        }));
+
+        var loadingPosts = false;
+        var postList = $("#main-feed");
+        var postsToRemove = postList.children().length - NUM_PLACEHOLDERS;
+        postList.children().filter(":lt(" + postsToRemove + ")").remove();
+
+        function getMorePosts(onComplete) {
+            if (loadingPosts) {
+                return;
+            }
+
+            loadingPosts = true;
+            postGenerator.getPostsHtml(POSTS_PER_PAGE, function(posts) {
+                posts.forEach(function(post) {
+                    $("#posts-loading-placeholder").first().before(post);
+                });
+
+                if (!postGenerator.hasMorePosts()) {
+                    $("#posts-loading-placeholder").hide();
+                    if (postList.children().length == NUM_PLACEHOLDERS) {
+                        $("#posts-empty-placeholder").show();
+                    }
+                }
+
+                loadingPosts = false;
+                onComplete();
             });
+        }
 
-            if (posts.length > 0) {
-                $("#posts-empty-placeholder").remove();
+        var documentNode = $(document);
+        var windowNode = $(window);
+
+        function getPostsIfRequired() {
+            if (!loadingPosts && postGenerator.hasMorePosts() && documentNode.height() - documentNode.scrollTop() <= windowNode.height() + POST_BUFFER) {
+                getMorePosts(getPostsIfRequired);
             }
+        }
 
-            if (!postGenerator.hasMorePosts()) {
-                $("#posts-empty-placeholder").show();
-                $("#posts-loading-placeholder").hide();
-            }
+        getPostsIfRequired();
 
-            loadingPosts = false;
-            onComplete();
-        });
-    }
+        var scrollHandler = function() {
+            getPostsIfRequired();
+        }
 
-    var documentNode = $(document);
-    var windowNode = $(window);
+        windowNode.on("scroll", scrollHandler);
 
-    function getPostsIfRequired() {
-        if (!loadingPosts && postGenerator.hasMorePosts() && documentNode.height() - documentNode.scrollTop() <= windowNode.height() + POST_BUFFER) {
-            getMorePosts(getPostsIfRequired);
+        removeExistingScrollListener = function() {
+            windowNode.off("scroll", scrollHandler);
         }
     }
 
-    getPostsIfRequired();
+    function onConfig(subscription, config) {
+        subscription.config = config;
+        if (subscription.validateConfig) {
+            subscription.configValid = subscription.validateConfig(subscription.config);
+        } else {
+            subscription.configValid = !!subscription.config;
+        }
 
-    windowNode.scroll(function() {
-        getPostsIfRequired();
-    });
-
-    function onConfig() {
-
+        generatePosts();
     }
 
     subscriptions.forEach(function(subscription) {
         $("#configure-" + subscription.id).click(function() {
-            configure(subscription, showModal, "{{ csrf_token }}", onConfig);
+            configure(subscription, showModal, "{{ csrf_token }}", function(config) {
+                onConfig(subscription, config);
+            });
         });
     });
 
@@ -187,10 +216,14 @@
     if (toConfigure) {
         subscriptions.forEach(function(subscription) {
             if (subscription.id === toConfigure) {
-                configure(subscription, showModal, "{{ csrf_token }}", onConfig);
+                configure(subscription, showModal, "{{ csrf_token }}", function(config) {
+                    onConfig(subscription, config);
+                });
             }
         });
     }
+
+    generatePosts();
 
 </script>
 {% endblock %}
