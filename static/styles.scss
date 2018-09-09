@@ -10,32 +10,52 @@ $text-highlight: #6291A0;
 $approved-color: #56E39F;
 $error-color: #D85050;
 
+$large-margin: 16px;
+$medium-margin: 8px;
+$small-margin: 4px;
+
 $font-stack: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
 
 body {
   background-color: $medium;
+  margin: 0;
   padding: 16px;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: $font-stack;
   color: $text-dark;
-  margin: 0;
+}
+
+h1:first-child {
+  margin-top: 0;
+}
+
+h2:first-child {
+  margin-top: 0;
+}
+
+h3:first-child {
+  margin-top: 0;
 }
 
 h1 {
   font-size: 2em;
-  margin-bottom: 8px;
+  margin: $large-margin 0;
 }
 
 h2 {
   font-size: 1.5em;
-  margin-bottom: 8px;
+  margin: $medium-margin 0;
 }
 
 h3 {
   font-size: 1.1em;
-  margin-bottom: 8px;
+  margin: $small-margin 0;
+}
+
+p {
+  margin: $large-margin 0;
 }
 
 p, div {
@@ -49,50 +69,33 @@ p, div {
 ul {
   background-color: $light;
   border-radius: 2px;
-  padding: 0 16px;
-  margin-top: 0;
+  padding: 0;
   list-style: none;
   box-shadow: 0px 2px 8px 0px rgba($dark, 0.5);
 }
 
 li {
-  padding: 16px 0;
+  padding: $large-margin;
   border-bottom: 1px solid;
   border-top: 1px solid;
   margin-top: -1px;
   border-color: rgba($dark, 0.1);
 
-  p:last-child {
+  > :last-child {
     margin-bottom: 0;
+  }
+
+  > :first-child {
+    margin-top: 0;
   }
 }
 
 li:first-child {
-  margin-top: 0;
   border-top: none;
 }
 
 li:last-child {
   border-bottom: none;
-}
-
-header {
-  margin-bottom: 8px;
-
-  h1, h2, h3 {
-    margin-top: 0;
-    margin-bottom: auto;
-  }
-
-  button {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  p {
-    margin: 0;
-    font-size: 12px;
-  }
 }
 
 header:last-child {
@@ -103,10 +106,7 @@ button {
   font-size: 1em;
   color: $text-dark;
   border: none;
-  padding: 4px 8px;
-  margin: 4px;
   background-color: $accent;
-  border-radius: 3px;
   transition: box-shadow 200ms ease-in-out;
   outline: none;
 }
@@ -148,28 +148,26 @@ input[type="number"] {
 
 label {
   font-size: 1em;
-  font-weight: 500;
-  margin: 4px 4px 4px 8px;
+  margin: $small-margin $small-margin $small-margin $medium-margin;
 }
 
 input {
-  margin: 4px 8px 4px 4px;
+  margin: $small-margin $medium-margin $small-margin $small-margin;
 }
 
 textarea {
-  margin: 4px 8px 4px 4px;
+  margin: $small-margin $medium-margin $small-margin $small-margin;
   font-family: $font-stack;
 }
 
 .content {
   max-width: 800px;
   margin: auto;
-  padding: 16px;
+  padding: 0;
 }
 
 .with-nav {
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
 
   h1, h2, h3 {
@@ -177,15 +175,24 @@ textarea {
     margin-right: auto;
   }
 
-  p {
-    display: inline-block;
-    font-size: 1em;
-    margin: 4px 8px;
+  * {
+    align-self: flex-start;
   }
 
-  form {
-    margin-left: 16px;
+  :last-child {
+    margin-right: 0;
   }
+
+  :first-child {
+    margin-left: 0;
+  }
+}
+
+.subtitle {
+  display: inline-block;
+  margin: 0 $medium-margin $medium-margin 0;
+  white-space: nowrap;
+  font-size: 0.9em;
 }
 
 .loader {
@@ -203,30 +210,29 @@ textarea {
   display: none;
 }
 
-.info-tag {
-  padding: 2px 4px;
-  margin: 0 4px;
+.button-sized {
+  display: inline-block;
+  padding: $small-margin $medium-margin;
+  margin: 0 $small-margin;
   border-radius: 3px;
   white-space: nowrap;
+  font-size: 1em;
 }
 
-.with-nav {
-  .info-tag {
-    padding: 2px 4px;
-    margin: 0 4px;
-    border-radius: 3px;
-    white-space: nowrap;
-  }
+button {
+  @extend .button-sized;
 }
 
 .approved-info {
   background-color: lighten($approved-color, 20%);
   border: 2px solid $approved-color;
+  padding: 2px 6px;
 }
 
 .error-info {
   background-color: lighten($error-color, 20%);
   border: 2px solid $error-color;
+  padding: 2px 6px;
 }
 
 @keyframes spin {
@@ -259,5 +265,5 @@ textarea {
   max-width: 70%;
   max-height: 70%;
   overflow: auto;
-  padding: 16px;
+  padding: $medium-margin;
 }

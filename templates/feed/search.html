@@ -15,20 +15,24 @@
 <ul>
     {% for plugin_version in top_versions %}
     <li>
-        <h3>
-            {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
-        </h3>
+        <header class="with-nav">
+            <h3>
+                <a href="/plugins/view/{{ plugin_version.id }}">
+                    {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
+                </a>
+            </h3>
+            {% if plugin_version.plugin in subscribed %}
+            <p class="button-sized approved-info">Subscribed</p>
+            {% else %}
+            <form action="/feed/subscribe/{{ plugin_version.id }}" method="post">
+                {% csrf_token %}
+                <button type="submit">Subscribe</button>
+            </form>
+            {% endif %}
+        </header>
         <p>
             {{ plugin_version.plugin.description }}
         </p>
-        {% if plugin_version.plugin in subscribed %}
-        <p>Subscribed</p>
-        {% else %}
-        <form action="/feed/subscribe/{{ plugin_version.id }}" method="post">
-            {% csrf_token %}
-            <button type="submit">Subscribe</button>
-        </form>
-        {% endif %}
     </li>
     {% endfor %}
 </ul>
@@ -38,20 +42,24 @@
     {% if results|length > 0 %}
     {% for plugin_version in results %}
     <li>
-        <h3>
-            {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
-        </h3>
+        <header class="with-nav">
+            <h3>
+                <a href="/plugins/view/{{ plugin_version.id }}">
+                    {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
+                </a>
+            </h3>
+            {% if plugin_version.plugin in subscribed %}
+            <p class="button-sized approved-info">Subscribed</p>
+            {% else %}
+            <form action="/feed/subscribe/{{ plugin_version.id }}" method="post">
+                {% csrf_token %}
+                <button type="submit">Subscribe</button>
+            </form>
+            {% endif %}
+        </header>
         <p>
             {{ plugin_version.plugin.description }}
         </p>
-        {% if plugin_version.plugin in subscribed %}
-        <p>Subscribed</p>
-        {% else %}
-        <form action="/feed/subscribe/{{ plugin_version.id }}" method="post">
-            {% csrf_token %}
-            <button type="submit">Subscribe</button>
-        </form>
-        {% endif %}
     </li>
     {% endfor %}
     {% else %}

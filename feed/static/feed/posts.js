@@ -56,6 +56,7 @@ function getHandlerPosts(handler, callback) {
     }
 }
 
+// TODO: Jquery!
 function getPostHtml(post) {
     var postContent = document.createElement("li");
 
@@ -75,15 +76,17 @@ function getPostHtml(post) {
 
     var date = document.createElement("p");
     date.appendChild(document.createTextNode((new Date(post.date)).toLocaleString()));
+    date.classList.add("subtitle");
     header.appendChild(date);
-
-    postContent.appendChild(header);
 
     if (post.author) {
         var author = document.createElement("p");
         author.appendChild(document.createTextNode(post.author));
-        postContent.appendChild(author);
+        author.classList.add("subtitle");
+        header.appendChild(author);
     }
+
+    postContent.appendChild(header);
 
     if (post.content) {
         var content = document.createElement("div");
@@ -97,6 +100,7 @@ function getPostHtml(post) {
         var comments = document.createElement("p");
         comments.appendChild(document.createTextNode("comments"));
         commentsLink.appendChild(comments);
+        commentsLink.classList.add("subtitle");
         postContent.appendChild(commentsLink);
     }
 

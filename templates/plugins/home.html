@@ -3,16 +3,18 @@
 {% block content %}
 <header class="with-nav">
     <h1>Plugins</h1>
-    <p><a href="/plugins/create">New Plugin</a></p>
-    <p><a href="/feed">Feed</a></p>
+    <p class="button-sized"><a href="/plugins/create">New Plugin</a></p>
+    <p class="button-sized"><a href="/feed">Feed</a></p>
 </header>
 {% for plugin, versions in plugins.items %}
 <ul>
     <li>
         <header class="with-nav">
             <h3>{{ plugin.name }}</h3>
-            <p><a href="/plugins/ownership/{{ plugin.id }}">Ownership</a></p>
-            <p><a href="/plugins/update/{{ plugin.id }}">New Version</a></p>
+            <div>
+                <p class="button-sized"><a href="/plugins/ownership/{{ plugin.id }}">Ownership</a></p>
+                <p class="button-sized"><a href="/plugins/update/{{ plugin.id }}">New Version</a></p>
+            </div>
         </header>
         <p>{{ plugin.description }}</p>
     </li>
@@ -22,14 +24,14 @@
             <h3><a href="/plugins/view/{{ version.id }}">v{{ version.major_version }}.{{ version.minor_version }}</a></h3>
             {% if version.published %}
             {% if version.approved %}
-            <p class="info-tag approved-info">Approved</p>
+            <p class="button-sized approved-info">Approved</p>
             {% elif version.rejected %}
-            <p class="info-tag error-info">Rejected</p>
+            <p class="button-sized error-info">Rejected</p>
             {% else %}
-            Pending approval
+            <p class="button-sized">Pending approval</p>
             {% endif %}
             {% else %}
-            <p><a href="/plugins/edit/{{ version.id }}">Edit</a></p>
+            <p class="button-sized"><a href="/plugins/edit/{{ version.id }}">Edit</a></p>
             <form action="/plugins/publish/{{ version.id }}" method="post">
                 {% csrf_token %}
                 <button type="submit">Publish</button>

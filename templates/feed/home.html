@@ -3,8 +3,8 @@
 {% block content %}
 <header class="with-nav">
     <h2>Plugins</h2>
-    <p><a href="/plugins">Plugin Creator</a></p>
-    <p><a href="/feed/search">Plugin Search</a></p>
+    <p class="button-sized"><a href="/plugins">Plugin Creator</a></p>
+    <p class="button-sized"><a href="/feed/search">Plugin Search</a></p>
 </header>
 <ul>
     {% for subscription in subscriptions %}
@@ -15,14 +15,16 @@
                     {{ subscription.plugin_version.plugin.name }} v{{ subscription.plugin_version.major_version }}.{{ subscription.plugin_version.minor_version }}
                 </a>
             </h3>
-            <p id="error-{{ subscription.id }}" class="info-tag error-info start-hidden">
-                Invalid config
-            </p>
-            <button id="configure-{{ subscription.id }}">Configure</button>
-            <form class="single-button" action="/feed/unsubscribe/{{ subscription.plugin_version.id }}" method="post">
-                {% csrf_token %}
-                <button type="submit">Unsubscribe</button>
-            </form>
+            <div>
+                <p id="error-{{ subscription.id }}" class="button-sized error-info start-hidden">
+                    Invalid config
+                </p>
+                <button id="configure-{{ subscription.id }}">Configure</button>
+                <form class="single-button" action="/feed/unsubscribe/{{ subscription.plugin_version.id }}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Unsubscribe</button>
+                </form>
+            </div>
         </header>
         <p>
             {{ subscription.plugin_version.plugin.description }}
@@ -38,7 +40,7 @@
         <h3>
             {{ old_version.plugin.name }}
         </h3>
-        <p>
+        <p class="button-sized">
             <a href="/plugins/view/{{ old_version.id }}">
                 v{{ old_version.major_version }}.{{ old_version.minor_version }}
             </a>
