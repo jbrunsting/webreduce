@@ -231,3 +231,68 @@ function PostGenerator() {
 
     return generator;
 }
+
+
+var removeExistingScrollListener;
+function setupPostList(postList, loadingPlaceholder, emptyPlaceholder) {
+    var POSTS_PER_PAGE = 5;
+    var POST_BUFFER = 200;
+    var NUM_PLACEHOLDERS = 2;
+
+    if (removeExistingScrollListener) {
+        removeExistingScrollListener();
+    }
+
+    var postGenerator = PostGenerator();
+    postGenerator.setSubscriptions(subscriptions.filter(function(subscription) {
+        return subscription.configValid;
+    }));
+
+    var loadingPosts = false;
+    var postsToRemove = postList.children().length - NUM_PLACEHOLDERS;
+    postList.children().filter(":lt(" + postsToRemove + ")").remove();
+
+    function getMorePosts(onComplete) {
+        if (loadingPosts) {
+            return;
+        }
+
+        loadingPosts = true;
+        postGenerator.getPostsHtml(POSTS_PER_PAGE, function(posts) {
+            posts.forEach(function(post) {
+                loadingPlaceholder.before(post);
+            });
+
+            if (!postGenerator.hasMorePosts()) {
+                loadingPlaceholder.hide();
+                if (postList.children().length == NUM_PLACEHOLDERS) {
+                    emptyPlaceholder.show();
+                }
+            }
+
+            loadingPosts = false;
+            onComplete();
+        });
+    }
+
+    var documentNode = $(document);
+    var windowNode = $(window);
+
+    function getPostsIfRequired() {
+        if (!loadingPosts && postGenerator.hasMorePosts() && documentNode.height() - documentNode.scrollTop() <= windowNode.height() + POST_BUFFER) {
+            getMorePosts(getPostsIfRequired);
+        }
+    }
+
+    getPostsIfRequired();
+
+    var scrollHandler = function() {
+        getPostsIfRequired();
+    }
+
+    windowNode.on("scroll", scrollHandler);
+
+    removeExistingScrollListener = function() {
+        windowNode.off("scroll", scrollHandler);
+    }
+}

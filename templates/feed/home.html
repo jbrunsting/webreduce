@@ -118,72 +118,9 @@
 </script>
 {% endfor %}
 <script>
-    // TODO: Move to seperate file
-    var removeExistingScrollListener;
-
-    function generatePosts() {
-        var POSTS_PER_PAGE = 5;
-        var POST_BUFFER = 200;
-        var NUM_PLACEHOLDERS = 2;
-
-        if (removeExistingScrollListener) {
-            removeExistingScrollListener();
-        }
-
-        var postGenerator = PostGenerator();
-        postGenerator.setSubscriptions(subscriptions.filter(function(subscription) {
-            return subscription.configValid;
-        }));
-
-        var loadingPosts = false;
-        var postList = $("#main-feed");
-        var postsToRemove = postList.children().length - NUM_PLACEHOLDERS;
-        postList.children().filter(":lt(" + postsToRemove + ")").remove();
-
-        function getMorePosts(onComplete) {
-            if (loadingPosts) {
-                return;
-            }
-
-            loadingPosts = true;
-            postGenerator.getPostsHtml(POSTS_PER_PAGE, function(posts) {
-                posts.forEach(function(post) {
-                    $("#posts-loading-placeholder").first().before(post);
-                });
-
-                if (!postGenerator.hasMorePosts()) {
-                    $("#posts-loading-placeholder").hide();
-                    if (postList.children().length == NUM_PLACEHOLDERS) {
-                        $("#posts-empty-placeholder").show();
-                    }
-                }
-
-                loadingPosts = false;
-                onComplete();
-            });
-        }
-
-        var documentNode = $(document);
-        var windowNode = $(window);
-
-        function getPostsIfRequired() {
-            if (!loadingPosts && postGenerator.hasMorePosts() && documentNode.height() - documentNode.scrollTop() <= windowNode.height() + POST_BUFFER) {
-                getMorePosts(getPostsIfRequired);
-            }
-        }
-
-        getPostsIfRequired();
-
-        var scrollHandler = function() {
-            getPostsIfRequired();
-        }
-
-        windowNode.on("scroll", scrollHandler);
-
-        removeExistingScrollListener = function() {
-            windowNode.off("scroll", scrollHandler);
-        }
-    }
+    postList = $("#main-feed");
+    loadingPlaceholder = $("#posts-loading-placeholder");
+    emptyPlaceholder = $("#posts-empty-placeholder");
 
     function showConfigErrors(toIgnore) {
         subscriptions.forEach(function(subscription) {
@@ -210,8 +147,7 @@
         }
 
         showConfigErrors();
-
-        generatePosts();
+        setupPostList(postList, loadingPlaceholder, emptyPlaceholder);
     }
 
     subscriptions.forEach(function(subscription) {
@@ -256,8 +192,7 @@
     }
 
     window.history.replaceState({}, document.title, "/feed");
-
-    generatePosts();
+    setupPostList(postList, loadingPlaceholder, emptyPlaceholder);
 
 </script>
 {% endblock %}
