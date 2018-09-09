@@ -24,7 +24,6 @@
             {% if version.approved %}
             <p class="info-tag approved-info">Approved</p>
             {% elif version.rejected %}
-            <p>{{ version.rejection_reason }}</p>
             <p class="info-tag error-info">Rejected</p>
             {% else %}
             Pending approval
@@ -35,7 +34,10 @@
                 {% csrf_token %}
                 <button type="submit">Publish</button>
             </form>
+            {% endif %}
         </header>
+        {% if version.rejected %}
+        <p>{{ version.rejection_reason }}</p>
         {% endif %}
     </li>
     {% endfor %}

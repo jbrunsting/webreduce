@@ -9,19 +9,15 @@ function saveConfig(subscriptionId, config, csrfToken) {
     });
 }
 
-function getModal(subscription, onConfig) {
-    var container = $("<div></div>");
-    if (subscription.getConfigModal) {
-        container.append(subscription.getConfigModal(onConfig, subscription.config));
-    }
-    return container.get();
-}
-
 function configure(subscription, showModal, csrfToken, onConfig, onCancel) {
-    var modal = getModal(subscription, function(config) {
+    if (!subscription.getConfigModal) {
+        return;
+    }
+
+    var modal = subscription.getConfigModal(function(config) {
         hideModal();
         saveConfig(subscription.id, config, csrfToken);
         onConfig(config);
-    });
+    }, subscription.config);
     showModal(modal, onCancel);
 }

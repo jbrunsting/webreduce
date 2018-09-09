@@ -18,11 +18,11 @@
             <p id="error-{{ subscription.id }}" class="info-tag error-info start-hidden">
                 Invalid config
             </p>
+            <button id="configure-{{ subscription.id }}">Configure</button>
             <form class="single-button" action="/feed/unsubscribe/{{ subscription.plugin_version.id }}" method="post">
                 {% csrf_token %}
                 <button type="submit">Unsubscribe</button>
             </form>
-            <button id="configure-{{ subscription.id }}">Configure</button>
         </header>
         <p>
             {{ subscription.plugin_version.plugin.description }}
@@ -215,11 +215,16 @@
     }
 
     subscriptions.forEach(function(subscription) {
-        $("#configure-" + subscription.id).click(function() {
-            configure(subscription, showModal, "{{ csrf_token }}", function(config) {
-                onConfig(subscription, config);
+        var configBtn = $("#configure-" + subscription.id);
+        if (!subscription.getConfigModal) {
+            configBtn.hide();
+        } else {
+            configBtn.click(function() {
+                configure(subscription, showModal, "{{ csrf_token }}", function(config) {
+                    onConfig(subscription, config);
+                });
             });
-        });
+        }
     });
 
     function GetURLParameter(param) {
