@@ -138,7 +138,7 @@ function fillPostBuffers(subscriptionHandlers, callback) {
 
         try {
             getHandlerPosts(handler, onHandlerComplete);
-        } catch(e) {
+        } catch (e) {
             console.error("Plugin " + handler.pluginName + " threw an error while fetching posts: " + e);
             handler.noMorePosts = true;
             onHandlerComplete();
@@ -238,7 +238,8 @@ function PostGenerator() {
 
 
 var removeExistingScrollListener;
-function setupPostList(postList, loadingPlaceholder, emptyPlaceholder) {
+
+function setupPostList(postGenerator, postList, loadingPlaceholder, emptyPlaceholder) {
     var POSTS_PER_PAGE = 5;
     var POST_BUFFER = 200;
     var NUM_PLACEHOLDERS = 2;
@@ -247,14 +248,15 @@ function setupPostList(postList, loadingPlaceholder, emptyPlaceholder) {
         removeExistingScrollListener();
     }
 
-    var postGenerator = PostGenerator();
-    postGenerator.setSubscriptions(subscriptions.filter(function(subscription) {
-        return subscription.configValid;
-    }));
-
     var loadingPosts = false;
     var postsToRemove = postList.children().length - NUM_PLACEHOLDERS;
     postList.children().filter(":lt(" + postsToRemove + ")").remove();
+
+    if (!postGenerator.hasMorePosts()) {
+        loadingPlaceholder.hide();
+        emptyPlaceholder.show();
+        return;
+    }
 
     function getMorePosts(onComplete) {
         if (loadingPosts) {

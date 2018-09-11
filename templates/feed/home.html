@@ -9,6 +9,7 @@
         <p class="button-sized"><a href="/accounts/logout">Log Out</a></p>
     </div>
 </header>
+{% if subscriptions|length > 0 %}
 <ul>
     {% for subscription in subscriptions %}
     <li>
@@ -35,6 +36,7 @@
     </li>
     {% endfor %}
 </ul>
+{% endif %}
 {% if updates|length > 0 %}
 <ul>
     {% for old_version, new_version in updates %}
@@ -195,7 +197,12 @@
     }
 
     window.history.replaceState({}, document.title, "/feed");
-    setupPostList(postList, loadingPlaceholder, emptyPlaceholder);
+
+    var postGenerator = PostGenerator();
+    postGenerator.setSubscriptions(subscriptions.filter(function(subscription) {
+        return subscription.configValid;
+    }));
+    setupPostList(postGenerator, postList, loadingPlaceholder, emptyPlaceholder);
 
 </script>
 {% endblock %}
