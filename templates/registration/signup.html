@@ -1,10 +1,17 @@
 {% extends "registration/base.html" %}
 
 {% block content %}
-<h2>Sign up</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Sign up</button>
-</form>
+{{ form.non_field_errors }}
+<div class="inner-content signup-container">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.username.errors }}
+        <input type="text" name="{{ form.username.name }}" placeholder="username" />
+        {{ form.password1.errors }}
+        {{ form.password2.errors }}
+        <input type="password" name="{{ form.password1.name }}" placeholder="password" />
+        <input type="password" name="{{ form.password2.name }}" placeholder="re-enter password" />
+        <button type="submit">Sign up</button>
+    </form>
+</div>
 {% endblock %}

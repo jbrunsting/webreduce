@@ -2,27 +2,33 @@
 
 {% block content %}
 
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+<ul class="errorlist">
+    {% if form.non_field_errors %}
+    {% for err in form.non_field_errors %}
+    <li>{{ err }} </li>
+    {% endfor %}
+    {% endif %}
+    {% if next %}
+    {% if user.is_authenticated %}
+    <li>Your account doesn't have access to this page. To proceed,
+        please login with an account that has access.</li>
+    {% else %}
+    <li>Please login to see this page.</li>
+    {% endif %}
+    {% endif %}
+</ul>
 
-{% if next %}
-{% if user.is_authenticated %}
-<p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-{% else %}
-<p>Please login to see this page.</p>
-{% endif %}
-{% endif %}
-
-<form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <input type="text" name="{{ form.username.name }}" placeholder="username" />
-    <input type="password" name="{{ form.password.name }}" placeholder="password" />
-    <input type="submit" value="login" />
-</form>
-
-{# Assumes you setup the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Forgot password?</a></p>
+<div class="inner-content login-container">
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        {{ form.username.errors }}
+        <input type="text" name="{{ form.username.name }}" placeholder="username" />
+        {{ form.password.errors }}
+        <input type="password" name="{{ form.password.name }}" placeholder="password" />
+        <input type="submit" value="login" />
+    </form>
+    {# Assumes you setup the password_reset view in your URLconf #}
+    <p><a href="{% url 'password_reset' %}">Forgot password?</a></p>
+</div>
 
 {% endblock %}

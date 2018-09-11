@@ -2,6 +2,7 @@ $accent: #F09D51;
 $dark: #313638;
 $light: #F9F7F3;
 $text-dark: #08090A;
+$error-color: #D85050;
 
 $large-margin: 16px;
 $medium-margin: 8px;
@@ -11,8 +12,7 @@ body {
   display: flex;
 }
 
-form {
-  display: flex;
+form { display: flex;
   flex-direction: column;
 }
 
@@ -47,8 +47,24 @@ input[type="submit"]:disabled {
   box-shadow: none;
 }
 
+ul.errorlist {
+  margin: 4px 8px 4px 4px;
+  padding: 0;
+
+  li {
+    background-color: lighten($error-color, 20%);
+    border: 2px solid $error-color;
+    padding: 2px 6px;
+    margin: 0;
+  }
+}
+
 .content {
-  display: inline-block;
+  overflow: hidden;
+}
+
+.inner-content {
+  margin: $medium-margin;
   background-color: $light;
   padding: $large-margin;
   box-shadow: 0px 2px 8px 0px rgba($dark, 0.5);
@@ -56,4 +72,12 @@ input[type="submit"]:disabled {
   :last-child {
     margin-bottom: 0;
   }
+}
+
+.login-container {
+  max-width: 400px;
+}
+
+.signup-container {
+  max-width: 400px;
 }
