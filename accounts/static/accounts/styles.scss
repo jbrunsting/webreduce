@@ -8,11 +8,8 @@ $large-margin: 16px;
 $medium-margin: 8px;
 $small-margin: 4px;
 
-body {
+form {
   display: flex;
-}
-
-form { display: flex;
   flex-direction: column;
 }
 
@@ -61,6 +58,9 @@ ul.errorlist {
 
 .content {
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .inner-content {

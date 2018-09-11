@@ -3,3 +3,6 @@
 {% block sass_imports %}
 <link rel="stylesheet" href={% sass_src "plugins/styles.scss" %}>
 {% endblock %}
+{% block nav %}
+{% include "authenticated_nav.html" %}
+{% endblock %}

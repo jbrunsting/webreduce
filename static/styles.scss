@@ -17,13 +17,12 @@ $small-margin: 4px;
 $font-stack: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
 
 body {
+  font-family: $font-stack;
   background-color: $medium;
   margin: 0;
-  padding: 16px;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: $font-stack;
   color: $text-dark;
 }
 
@@ -60,7 +59,6 @@ p {
 
 p, div {
   color: $text-dark;
-  font-family: $font-stack;
   font-size: 1em;
   font-style: normal;
   font-variant: normal;
@@ -163,7 +161,7 @@ textarea {
 .content {
   max-width: 800px;
   margin: auto;
-  padding: 0;
+  padding: $large-margin;
 }
 
 .with-nav {
@@ -233,6 +231,47 @@ button {
   background-color: lighten($error-color, 20%);
   border: 2px solid $error-color;
   padding: 2px 6px;
+}
+
+.nav {
+  @extend .with-nav;
+
+  background-color: $dark;
+  padding: $large-margin;
+  display: flex;
+  box-shadow: 0px 2px 8px 0px rgba($dark, 0.5);
+
+  h1, h2, h3 {
+    color: $medium;
+    margin-top: $medium-margin;
+    margin-bottom: $medium-margin;
+  }
+
+  div {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  a {
+    color: $text-light;
+    transition: color 200ms ease-in-out;
+  }
+
+  p {
+    margin-top: $medium-margin;
+    margin-bottom: $medium-margin;
+    padding: 2px 6px;
+    border: 2px solid $medium;
+    transition: border-color 200ms ease-in-out;
+  }
+
+  p:hover {
+    border-color: darken($medium, 20%);
+
+    a {
+      color: darken($medium, 20%);
+    }
+  }
 }
 
 @keyframes spin {

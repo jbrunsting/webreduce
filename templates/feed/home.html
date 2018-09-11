@@ -1,14 +1,6 @@
 {% extends "feed/base.html" %}
 
 {% block content %}
-<header class="with-nav">
-    <h1>WebReduce Feed</h1>
-    <div>
-        <p class="button-sized"><a href="/plugins">Plugin Creator</a></p>
-        <p class="button-sized"><a href="/feed/search">Plugin Search</a></p>
-        <p class="button-sized"><a href="/accounts/logout">Log Out</a></p>
-    </div>
-</header>
 {% if subscriptions|length > 0 %}
 <ul>
     {% for subscription in subscriptions %}
