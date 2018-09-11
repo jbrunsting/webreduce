@@ -3,41 +3,16 @@
 {% block content %}
 <header class="with-nav">
     <h1>Search</h1>
+    <p class="button-sized"><a href="/feed">Feed</a></p>
+</header>
+<header class="with-nav">
+    <h2>Results</h2>
     <form action="/feed/search" method="post">
         {% csrf_token %}
         {{ form }}
         <button type="submit">Search</button>
     </form>
 </header>
-
-<h2>Top Plugins</h2>
-
-<ul>
-    {% for plugin_version in top_versions %}
-    <li>
-        <header class="with-nav">
-            <h3>
-                <a href="/plugins/view/{{ plugin_version.id }}">
-                    {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
-                </a>
-            </h3>
-            {% if plugin_version.plugin in subscribed %}
-            <p class="button-sized approved-info">Subscribed</p>
-            {% else %}
-            <form action="/feed/subscribe/{{ plugin_version.id }}" method="post">
-                {% csrf_token %}
-                <button type="submit">Subscribe</button>
-            </form>
-            {% endif %}
-        </header>
-        <p>
-            {{ plugin_version.plugin.description }}
-        </p>
-    </li>
-    {% endfor %}
-</ul>
-
-<h2>Search Results</h2>
 <ul>
     {% if results|length > 0 %}
     {% for plugin_version in results %}
@@ -65,5 +40,30 @@
     {% else %}
     <li class="empty-placeholder">Enter a search term to find more plugins</li>
     {% endif %}
+</ul>
+<h2>Top Plugins</h2>
+<ul>
+    {% for plugin_version in top_versions %}
+    <li>
+        <header class="with-nav">
+            <h3>
+                <a href="/plugins/view/{{ plugin_version.id }}">
+                    {{ plugin_version.plugin.name }} v{{ plugin_version.major_version }}.{{ plugin_version.minor_version }}
+                </a>
+            </h3>
+            {% if plugin_version.plugin in subscribed %}
+            <p class="button-sized approved-info">Subscribed</p>
+            {% else %}
+            <form action="/feed/subscribe/{{ plugin_version.id }}" method="post">
+                {% csrf_token %}
+                <button type="submit">Subscribe</button>
+            </form>
+            {% endif %}
+        </header>
+        <p>
+            {{ plugin_version.plugin.description }}
+        </p>
+    </li>
+    {% endfor %}
 </ul>
 {% endblock %}

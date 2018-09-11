@@ -137,3 +137,5 @@ STATICFILES_FINDERS = [
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+LOGIN_REDIRECT_URL = '/feed'

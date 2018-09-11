@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "registration/base.html" %}
 
 {% block content %}
 
@@ -17,23 +17,12 @@
 
 <form method="post" action="{% url 'login' %}">
     {% csrf_token %}
-
-    <div>
-        <td>{{ form.username.label_tag }}</td>
-        <td>{{ form.username }}</td>
-    </div>
-    <div>
-        <td>{{ form.password.label_tag }}</td>
-        <td>{{ form.password }}</td>
-    </div>
-
-    <div>
-        <input type="submit" value="login" />
-        <input type="hidden" name="next" value="{{ next }}" />
-    </div>
+    <input type="text" name="{{ form.username.name }}" placeholder="username" />
+    <input type="password" name="{{ form.password.name }}" placeholder="password" />
+    <input type="submit" value="login" />
 </form>
 
 {# Assumes you setup the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+<p><a href="{% url 'password_reset' %}">Forgot password?</a></p>
 
 {% endblock %}

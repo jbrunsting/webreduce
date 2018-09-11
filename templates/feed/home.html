@@ -2,9 +2,12 @@
 
 {% block content %}
 <header class="with-nav">
-    <h2>Plugins</h2>
-    <p class="button-sized"><a href="/plugins">Plugin Creator</a></p>
-    <p class="button-sized"><a href="/feed/search">Plugin Search</a></p>
+    <h1>WebReduce Feed</h1>
+    <div>
+        <p class="button-sized"><a href="/plugins">Plugin Creator</a></p>
+        <p class="button-sized"><a href="/feed/search">Plugin Search</a></p>
+        <p class="button-sized"><a href="/accounts/logout">Log Out</a></p>
+    </div>
 </header>
 <ul>
     {% for subscription in subscriptions %}
@@ -33,7 +36,6 @@
     {% endfor %}
 </ul>
 {% if updates|length > 0 %}
-<h2>Updates</h2>
 <ul>
     {% for old_version, new_version in updates %}
     <li class="with-nav">
@@ -57,7 +59,6 @@
     {% endfor %}
 </ul>
 {% endif %}
-<h2>Feed</h2>
 <ul id="main-feed">
     <li id="posts-loading-placeholder">
         <div class="loader"></div>
