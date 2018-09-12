@@ -128,7 +128,8 @@ def search(request):
 def subscribe(request, plugin_version_id):
     plugin_version = get_object_or_404(PluginVersion, pk=plugin_version_id)
 
-    if ConfiguredPlugin.objects.filter(plugin_version=plugin_version).exists():
+    if ConfiguredPlugin.objects.filter(
+            user=request.user, plugin_version=plugin_version).exists():
         return redirect('/feed')
 
     configured_plugin = ConfiguredPlugin(
