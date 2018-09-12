@@ -135,6 +135,14 @@
         });
     }
 
+    function refreshPostList() {
+        var postGenerator = PostGenerator();
+        postGenerator.setSubscriptions(subscriptions.filter(function(subscription) {
+            return subscription.configValid;
+        }));
+        setupPostList(postGenerator, postList, loadingPlaceholder, emptyPlaceholder);
+    }
+
     function onConfig(subscription, config) {
         subscription.config = config;
         if (subscription.validateConfig) {
@@ -144,7 +152,7 @@
         }
 
         showConfigErrors();
-        setupPostList(postList, loadingPlaceholder, emptyPlaceholder);
+        refreshPostList();
     }
 
     subscriptions.forEach(function(subscription) {
@@ -190,11 +198,7 @@
 
     window.history.replaceState({}, document.title, "/feed");
 
-    var postGenerator = PostGenerator();
-    postGenerator.setSubscriptions(subscriptions.filter(function(subscription) {
-        return subscription.configValid;
-    }));
-    setupPostList(postGenerator, postList, loadingPlaceholder, emptyPlaceholder);
+    refreshPostList();
 
 </script>
 {% endblock %}
