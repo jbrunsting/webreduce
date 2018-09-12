@@ -1,3 +1,4 @@
+$accent: #F09D51;
 $codemirror-background: #F7F7F7;
 $codemirror-border: #DDD;
 
@@ -93,6 +94,7 @@ body.unbounded {
 }
 
 .jumbo-button {
+    color: $accent;
     text-align: center;
     font-size: 3em;
 }

@@ -7,6 +7,8 @@
         {% csrf_token %}
         {{ form.username.errors }}
         <input type="text" name="{{ form.username.name }}" placeholder="username" />
+        {{ form.email.errors }}
+        <input type="email" name="{{ form.email.name }}" placeholder="email" />
         {{ form.password1.errors }}
         {{ form.password2.errors }}
         <input type="password" name="{{ form.password1.name }}" placeholder="password" />
