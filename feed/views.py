@@ -108,10 +108,13 @@ def search(request):
     for plugin_info in top_plugins:
         plugin_pk = plugin_info['plugin_version__plugin']
         plugin = Plugin.objects.get(pk=plugin_pk)
-        top_versions.append(newest_versions(plugin.pluginversion_set.all())[0])
+        approved = plugin.pluginversion_set.filter(approved=True)
+        if approved.exists():
+            top_versions.append(newest_versions(approved.all())[0])
 
     return render(
         request, 'feed/search.html', {
+            'searching': search_term != "",
             'user': request.user,
             'results': results,
             'subscribed': [s.plugin_version.plugin for s in subscriptions],

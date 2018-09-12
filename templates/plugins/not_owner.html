@@ -2,8 +2,12 @@
 
 {% block content %}
 <h1>Not an owner of "{{ plugin_name }}"</h1>
-<h2>Owners ({{ plugin_owners|length }}):</h2>
-{% for owner in plugin_owners %}
-<p>owner: {{ owner }}</p>
-{% endfor %}
+<h2>Owners</h2>
+<ul>
+    {% for owner in plugin_owners %}
+    <li>
+        {{ owner }}
+    </li>
+    {% endfor %}
+</ul>
 {% endblock %}

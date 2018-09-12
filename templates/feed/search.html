@@ -38,7 +38,11 @@
     </li>
     {% endfor %}
     {% else %}
+    {% if searching %}
+    <li class="empty-placeholder">No search results</li>
+    {% else %}
     <li class="empty-placeholder">Enter a search term to find more plugins</li>
+    {% endif %}
     {% endif %}
 </ul>
 <h2>Top Plugins</h2>
