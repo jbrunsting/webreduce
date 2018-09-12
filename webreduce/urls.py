@@ -3,6 +3,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from . import views
+
+handler404 = views.handler404
+handler500 = views.handler500
+
 urlpatterns = [
     path('registration/', include('registration.urls')),
     path('feed/', include('feed.urls')),
