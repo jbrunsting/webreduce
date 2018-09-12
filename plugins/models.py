@@ -3,7 +3,7 @@ import uuid
 from django.contrib.auth.models import User
 from django.db import models
 
-from accounts.models import User
+from registration.models import User
 
 
 class Plugin(models.Model):

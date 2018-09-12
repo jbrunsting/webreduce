@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_static_jquery',
     'sass_processor',
-    'accounts',
+    'registration',
     'feed',
     'plugins',
 ]
@@ -104,7 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = 'registration.User'
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/

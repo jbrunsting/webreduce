@@ -1,0 +1,7 @@
+Setup "reset password" stuff so it actually emails people
+change from development to production mode (have to change how static files are handled to do this)
+rate limit requests that make DB hits
+caching?
+404 page - standardize? (https://docs.djangoproject.com/en/2.1/topics/http/views/#the-http404-exception)
+On the feed, each page should have the page number in the URL, and the back button should go to the previous page
+Allow users to edit the plugin description

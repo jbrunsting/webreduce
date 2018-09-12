@@ -2,7 +2,7 @@ import uuid
 
 from django.db import models
 
-from accounts.models import User
+from registration.models import User
 from plugins.models import Plugin, PluginVersion
 
 
