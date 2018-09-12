@@ -2,15 +2,19 @@ $accent: #F09D51;
 $dark: #313638;
 $light: #F9F7F3;
 $text-dark: #08090A;
+$text-light: #DEE2E5;
 $error-color: #D85050;
 
 $large-margin: 16px;
 $medium-margin: 8px;
 $small-margin: 4px;
 
+body {
+  background-color: lighten($dark, 20%);
+}
+
 form {
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
 }
 
 input[type="submit"] {
@@ -80,4 +84,24 @@ ul.errorlist {
 
 .signup-container {
   max-width: 400px;
+}
+
+.tagline {
+  font-size: 1.8em;
+  text-align: center;
+  color: $text-light;
+}
+
+.call-to-action {
+  text-align: center;
+  font-size: 1.5em;
+  color: $text-light;
+
+  a {
+      color: white;
+  }
+
+  a:visited {
+      color: white;
+  }
 }

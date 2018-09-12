@@ -2,8 +2,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.views.decorators.http import require_http_methods
 
 from .models import User
+
+
+@require_http_methods(["GET"])
+def home(request):
+    return render(request, 'registration/home.html')
 
 
 class SignupForm(UserCreationForm):
@@ -29,4 +35,4 @@ def signup(request):
 
 def logoutUser(request):
     logout(request)
-    return redirect('/registration/login')
+    return redirect('/login')
