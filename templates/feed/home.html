@@ -45,7 +45,7 @@
                 v{{ new_version.major_version }}.{{ new_version.minor_version }}
             </a>
         </p>
-        <form class="single-button" action="/feed/update/{{ new_version.id }}" method="post">
+        <form class="single-button" action="/feed/subscribe/{{ new_version.id }}" method="post">
             {% csrf_token %}
             <button type="submit">Update</button>
         </form>

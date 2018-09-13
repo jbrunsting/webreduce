@@ -7,7 +7,6 @@ urlpatterns = [
     path('search', views.search),
     path('subscribe/<plugin_version_id>', views.subscribe),
     path('unsubscribe/<plugin_version_id>', views.unsubscribe),
-    path('update/<plugin_version_id>', views.update),
     path('configure/<configuration_id>', views.configure),
     path('feed/external/<plugin_name>', views.external),
 ]

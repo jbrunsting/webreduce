@@ -15,7 +15,8 @@ from .models import ConfiguredPlugin
 
 def newest_version(plugin_version):
     max_version = plugin_version
-    for version in max_version.plugin.pluginversion_set.all():
+    for version in max_version.plugin.pluginversion_set.filter(
+            approved=True).all():
         if (version.major_version > max_version.major_version
                 or version.major_version == max_version.major_version
                 and version.minor_version > max_version.minor_version):
@@ -73,9 +74,7 @@ def get_search_results(search_term, user_id):
     # TODO: Use a better search algorithm - when using postgres there are
     # better fuzzy search options
     approved_versions = PluginVersion.objects.filter(approved=True)
-    owned_versions = PluginVersion.objects.filter(plugin__owners=user_id)
-    valid_versions = approved_versions | owned_versions
-    search_results = valid_versions.filter(
+    search_results = approved_versions.filter(
         Q(plugin__name__icontains=search_term)
         | Q(plugin__description__icontains=search_term))
     return newest_versions(search_results)
@@ -128,8 +127,23 @@ def search(request):
 def subscribe(request, plugin_version_id):
     plugin_version = get_object_or_404(PluginVersion, pk=plugin_version_id)
 
+    if not plugin_version.approved and not request.user in plugin_version.plugin.owners.all(
+    ):
+        return redirect('/feed')
+
     if ConfiguredPlugin.objects.filter(
             user=request.user, plugin_version=plugin_version).exists():
+        return redirect('/feed')
+
+    if ConfiguredPlugin.objects.filter(
+            user=request.user,
+            plugin_version__plugin=plugin_version.plugin).exists():
+        configuration = get_object_or_404(
+            ConfiguredPlugin,
+            user=request.user,
+            plugin_version__plugin=plugin_version.plugin)
+        configuration.plugin_version = plugin_version
+        configuration.save()
         return redirect('/feed')
 
     configured_plugin = ConfiguredPlugin(
@@ -148,21 +162,6 @@ def unsubscribe(request, plugin_version_id):
         user=request.user, plugin_version=plugin_version)
     if candidates.exists():
         candidates.first().delete()
-
-    return redirect('/feed')
-
-
-@login_required
-@require_http_methods(["POST"])
-def update(request, plugin_version_id):
-    new_version = get_object_or_404(PluginVersion, pk=plugin_version_id)
-
-    configurations = ConfiguredPlugin.objects.filter(
-        user=request.user, plugin_version__plugin=new_version.plugin)
-    if configurations.exists():
-        configuration = configurations.first()
-        configuration.plugin_version = new_version
-        configuration.save()
 
     return redirect('/feed')
 

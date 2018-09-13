@@ -97,10 +97,15 @@ def home(request):
     for plugin in owned_plugins:
         plugins[plugin] = plugin.pluginversion_set.all()
 
-    return render(request, 'plugins/home.html', {
-        'username': request.user.username,
-        'plugins': plugins,
-    })
+    subscriptions = ConfiguredPlugin.objects.filter(user=request.user).all()
+
+    return render(
+        request, 'plugins/home.html', {
+            'username': request.user.username,
+            'plugins': plugins,
+            'subscribed': [s.plugin_version.plugin for s in subscriptions],
+            'subscribed_versions': [s.plugin_version for s in subscriptions],
+        })
 
 
 class CreatePluginForm(forms.ModelForm):

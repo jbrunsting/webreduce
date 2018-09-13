@@ -32,6 +32,14 @@
                 <button type="submit">Publish</button>
             </form>
             {% endif %}
+            {% if version in subscribed_versions %}
+            <p class="button-sized approved-info">Subscribed</p>
+            {% else %}
+            <form action="/feed/subscribe/{{ version.id }}" method="post">
+                {% csrf_token %}
+                <button type="submit">Subscribe</button>
+            </form>
+            {% endif %}
         </header>
         {% if version.rejected %}
         <p>{{ version.rejection_reason }}</p>
