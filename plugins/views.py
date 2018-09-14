@@ -20,7 +20,7 @@ function validateConfig(config) {
    * Check that the config has the required structure and fields
    */
 
-  return !!config;
+  return true;
 }
 
 /**
@@ -381,12 +381,7 @@ def post_edit_version(request, version_id):
     else:
         error = "Invalid form"
 
-    # TODO: This messes up the browser history, maybe make the front end async?
-    return render(request, 'plugins/edit.html', {
-        'version': version,
-        'form': form,
-        'error': error,
-    })
+    return redirect('/plugins')
 
 
 @login_required

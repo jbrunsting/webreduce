@@ -95,7 +95,7 @@ ul.errorlist {
 .call-to-action {
   text-align: center;
   font-size: 1.5em;
-  color: $text-light;
+  color: darken($text-light, 20%);
 
   a {
       color: white;
@@ -104,4 +104,12 @@ ul.errorlist {
   a:visited {
       color: white;
   }
+}
+
+#home-animation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: -10;
 }

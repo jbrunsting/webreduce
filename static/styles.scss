@@ -168,7 +168,7 @@ textarea {
   display: flex;
   flex-wrap: wrap;
 
-  h1, h2, h3 {
+  > :first-child {
     display: inline-block;
     margin-right: auto;
   }
@@ -256,24 +256,19 @@ button {
     margin-bottom: auto;
   }
 
-  a {
-    color: $text-light;
-    transition: color 200ms ease-in-out;
-  }
-
   p {
+    color: $text-light;
+    border: 2px solid $medium;
     margin-top: $medium-margin;
     margin-bottom: $medium-margin;
     padding: 2px 6px;
-    border: 2px solid $medium;
-    transition: border-color 200ms ease-in-out;
+    transition: color 200ms, border-color 200ms;
   }
 
-  p:hover {
-    border-color: darken($medium, 20%);
-
-    a {
-      color: darken($medium, 20%);
+  a:hover {
+    p {
+      color: darken($medium, 30%);
+      border-color: darken($medium, 30%);
     }
   }
 }
