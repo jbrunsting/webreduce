@@ -1,4 +1,4 @@
-from django import forms
+from django import forms, template
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -89,13 +89,31 @@ function fetchPosts(callback, configData, paginationData) {
 '''
 
 
+class EditDescriptionForm(forms.ModelForm):
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'placeholder': 'description',
+        }), label='')
+
+    class Meta:
+        model = Plugin
+        fields = [
+            'description',
+        ]
+
+
 @login_required
 @require_http_methods(["GET"])
 def home(request):
     plugins = {}
+    description_editors = {}
     owned_plugins = Plugin.objects.filter(owners=request.user.id)
     for plugin in owned_plugins:
-        plugins[plugin] = plugin.pluginversion_set.all()
+        plugin_data = {}
+        plugin_data['versions'] = plugin.pluginversion_set.all()
+        plugin_data['edit_description'] = EditDescriptionForm(
+            initial={'description': plugin.description})
+        plugins[plugin] = plugin_data
 
     subscriptions = ConfiguredPlugin.objects.filter(user=request.user).all()
 
@@ -105,6 +123,7 @@ def home(request):
             'plugins': plugins,
             'subscribed': [s.plugin_version.plugin for s in subscriptions],
             'subscribed_versions': [s.plugin_version for s in subscriptions],
+            'description_editors': description_editors,
         })
 
 
@@ -333,6 +352,18 @@ def create_version(request, plugin_id):
         return get_create_version(request, plugin)
 
     return post_create_version(request, plugin)
+
+
+@login_required
+@require_http_methods(["POST"])
+def update_description(request, plugin_id):
+    plugin = get_object_or_404(Plugin, pk=plugin_id)
+
+    form = EditDescriptionForm(request.POST, instance=plugin)
+    if form.is_valid():
+        form.save()
+
+    return redirect('/plugins')
 
 
 class EditVersionForm(forms.ModelForm):

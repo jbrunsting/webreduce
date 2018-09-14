@@ -2,10 +2,6 @@
 
 {% block content %}
 <header class="with-nav">
-    <h1>Search</h1>
-    <p class="button-sized"><a href="/feed">Feed</a></p>
-</header>
-<header class="with-nav">
     <h2>Results</h2>
     <form action="/feed/search" method="post">
         {% csrf_token %}
@@ -32,9 +28,7 @@
             </form>
             {% endif %}
         </header>
-        <p>
-            {{ plugin_version.plugin.description }}
-        </p>
+        <p class="long-text">{{ plugin_version.plugin.description }}</p>
     </li>
     {% endfor %}
     {% else %}
@@ -64,9 +58,7 @@
             </form>
             {% endif %}
         </header>
-        <p>
-            {{ plugin_version.plugin.description }}
-        </p>
+        <p class="long-text">{{ plugin_version.plugin.description }}</p>
     </li>
     {% endfor %}
 </ul>

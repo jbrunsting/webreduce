@@ -1,7 +1,7 @@
 {% extends "plugins/base.html" %}
 
 {% block content %}
-{% for plugin, versions in plugins.items %}
+{% for plugin, plugin_data in plugins.items %}
 <ul>
     <li>
         <header class="with-nav">
@@ -11,9 +11,21 @@
                 <p class="button-sized"><a href="/plugins/update/{{ plugin.id }}">New Version</a></p>
             </div>
         </header>
-        <p>{{ plugin.description }}</p>
+        <div class="editable-container">
+            <input id="edit-{{ plugin.id }}" type="checkbox" class="edit"></input>
+            <p class="view-content long-text">{{ plugin.description }}</p>
+            <form class="edit-content" action="/plugins/description/{{ plugin.id }}" method="post">
+                {% csrf_token %}
+                {{ plugin_data.edit_description }}
+                <div>
+                    <button type="submit">Save</button>
+                    <label for="edit-{{ plugin.id }}" class="edit-button button-sized">Cancel</label>
+                </div>
+            </form>
+            <label for="edit-{{ plugin.id }}" class="edit-button edit button-sized">Edit</label>
+        </div>
     </li>
-    {% for version in versions %}
+    {% for version in plugin_data.versions %}
     <li>
         <header class="with-nav">
             <h3><a href="/plugins/view/{{ version.id }}">v{{ version.major_version }}.{{ version.minor_version }}</a></h3>

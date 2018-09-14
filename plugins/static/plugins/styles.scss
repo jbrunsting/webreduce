@@ -1,6 +1,15 @@
 $accent: #F09D51;
+$dark: #313638;
+$medium: #EDEDED;
+$light: #F9F7F3;
+$text-dark: #08090A;
+$text-light: #DEE2E5;
 $codemirror-background: #F7F7F7;
 $codemirror-border: #DDD;
+
+$large-margin: 16px;
+$medium-margin: 8px;
+$small-margin: 4px;
 
 body.unbounded {
   margin: 0;
@@ -26,6 +35,60 @@ body.unbounded {
 
   form {
     margin-bottom: 16px;
+  }
+}
+
+.editable-container {
+  margin-top: $large-margin;
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-button {
+  background-color: $accent;
+  cursor: pointer;
+  transition: box-shadow 200ms ease-in-out;
+  margin-left: auto;
+
+  &:hover {
+    cursor: pointer;
+    box-shadow: 0px 1px 2px 1px rgba($dark, 0.3);
+  }
+}
+
+input[type="checkbox"].edit {
+  display: none;
+
+  ~ .view-content {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  ~ .edit-content {
+    margin-top: $large-margin;
+    margin-bottom: $large-margin;
+    display: none;
+  }
+
+  &:checked {
+    ~ .view-content {
+      display: none;
+    }
+
+    ~ .edit-content {
+      margin-top: 0;
+      margin-bottom: 0;
+      display: flex;
+      flex-direction: column;
+
+      * {
+        float: right;
+      }
+    }
+
+    ~ .edit {
+      display: none;
+    }
   }
 }
 
@@ -94,9 +157,9 @@ body.unbounded {
 }
 
 .jumbo-button {
-    color: $accent;
-    text-align: center;
-    font-size: 3em;
+  color: $accent;
+  text-align: center;
+  font-size: 3em;
 }
 
 #error-output {
