@@ -6,7 +6,9 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_http_methods
 
-from .models import User
+from feed.models import ConfiguredPlugin
+
+from .models import DefaultPlugin, User
 
 
 @require_http_methods(["GET"])
@@ -21,6 +23,7 @@ def temporary(request):
     user.set_password(password)
     user.save()
     authenticated = authenticate(username=username, password=password)
+    setup_defaults(user)
     login(request, authenticated)
     return redirect('/feed')
 
@@ -29,6 +32,13 @@ class SignupForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'email')
+
+
+def setup_defaults(user):
+    for default in DefaultPlugin.objects.all():
+        configured_plugin = ConfiguredPlugin(
+            user=user, plugin_version=default.plugin_version)
+        configured_plugin.save()
 
 
 def signup(request):
@@ -41,6 +51,7 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(
                 username=username, email=email, password=raw_password)
+            setup_defaults(user)
             login(request, user)
             return redirect('/feed')
     else:
