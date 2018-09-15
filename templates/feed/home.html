@@ -3,28 +3,37 @@
 {% block content %}
 {% if subscriptions|length > 0 %}
 <ul>
-    {% for subscription in subscriptions %}
-    <li>
-        <header class="with-nav">
-            <h3>
-                <a href="/plugins/view/{{ subscription.plugin_version.id }}">
-                    {{ subscription.plugin_version.plugin.name }} v{{ subscription.plugin_version.major_version }}.{{ subscription.plugin_version.minor_version }}
-                </a>
-            </h3>
-            <div>
-                <p id="error-{{ subscription.id }}" class="button-sized error-info start-hidden">
-                    Invalid config
-                </p>
-                <button id="configure-{{ subscription.id }}">Configure</button>
-                <form class="single-button" action="/feed/unsubscribe/{{ subscription.plugin_version.id }}" method="post">
-                    {% csrf_token %}
-                    <button type="submit">Unsubscribe</button>
-                </form>
-            </div>
-        </header>
-        <p class="long-text">{{ subscription.plugin_version.plugin.description }}</p>
-    </li>
-    {% endfor %}
+    <input id="collapse-subscriptions" type="checkbox" class="collapser"></input>
+    <label for="collapse-subscriptions" class="collapse-button">
+        <li class="collapse-header">
+            <h3>Subscriptions</h3>
+            <div class="collapse-icon"></div>
+        </li>
+    </label>
+    <div class="collapsable-content">
+        {% for subscription in subscriptions %}
+        <li>
+            <header class="with-nav">
+                <h3>
+                    <a href="/plugins/view/{{ subscription.plugin_version.id }}">
+                        {{ subscription.plugin_version.plugin.name }} v{{ subscription.plugin_version.major_version }}.{{ subscription.plugin_version.minor_version }}
+                    </a>
+                </h3>
+                <div>
+                    <p id="error-{{ subscription.id }}" class="button-sized error-info start-hidden">
+                        Invalid config
+                    </p>
+                    <button id="configure-{{ subscription.id }}">Configure</button>
+                    <form class="single-button" action="/feed/unsubscribe/{{ subscription.plugin_version.id }}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">Unsubscribe</button>
+                    </form>
+                </div>
+            </header>
+            <p class="long-text">{{ subscription.plugin_version.plugin.description }}</p>
+        </li>
+        {% endfor %}
+    </div>
 </ul>
 {% endif %}
 {% if updates|length > 0 %}

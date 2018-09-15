@@ -79,21 +79,17 @@ li {
   margin-top: -1px;
   border-color: rgba($dark, 0.1);
 
-  > :last-child {
+  header {
+    margin-bottom: $medium-margin;
+
+    + * {
+      margin-top: 0;
+    }
+  }
+
+  :last-child {
     margin-bottom: 0;
   }
-
-  > :first-child {
-    margin-top: 0;
-  }
-}
-
-li:first-child {
-  border-top: none;
-}
-
-li:last-child {
-  border-bottom: none;
 }
 
 header:last-child {
@@ -285,6 +281,12 @@ button {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.jumbo-button {
+  color: $accent;
+  text-align: center;
+  font-size: 3em;
 }
 
 #modal {

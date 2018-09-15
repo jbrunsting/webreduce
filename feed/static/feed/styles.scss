@@ -1,4 +1,62 @@
+$accent: #F09D51;
+$dark: #313638;
+$medium: #EDEDED;
+$light: #F9F7F3;
+$text-dark: #08090A;
+$text-light: #DEE2E5;
+
+$large-margin: 16px;
+$medium-margin: 8px;
+$small-margin: 4px;
+
 form.single-button {
   display: inline-block;
   margin: 0;
+}
+
+.collapser {
+  display: none;
+}
+
+.collapse-header {
+  display: flex;
+  align-items: center;
+  background-color: $light;
+
+  * {
+    display: inline-block;
+    margin: 0;
+  }
+}
+
+.collapse-icon {
+  margin-left: auto;
+  color: $accent;
+}
+
+.collapsable-content {
+  display: none;
+}
+
+.collapse-button {
+  margin: 0;
+  color: $accent;
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.collapse-icon:before {
+  content: "▼";
+}
+
+.collapser:checked {
+  ~ .collapsable-content {
+    display: block;
+  }
+
+  ~ .collapse-button {}
+
+  ~ .collapse-button .collapse-icon:before {
+    content: "▲";
+  }
 }
