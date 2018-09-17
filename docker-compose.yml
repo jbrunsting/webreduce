@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+    db:
+        image: postgres:latest
+    web:
+        build: .
+        command: >
+            sh -c "
+            python3 manage.py migrate
+            && python3 manage.py collectstatic --noinput
+            && python3 manage.py runserver 0.0.0.0:80"
+        ports:
+          - "80:80"
+        volumes:
+          - /static:/src/static_root
+        depends_on:
+          - db
+        environment:
+          - DEBUG=False
+          - SECRET_KEY
+    nginx:
+        image: nginx:latest
+        ports:
+          - "443:443"
+        volumes:
+          - ./nginx:/etc/nginx/conf.d
+          - /static:/public/static
+        depends_on:
+          - web

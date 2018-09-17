@@ -106,3 +106,5 @@ venv.bak/
 migrations/
 
 static_root
+
+secret_settings.py
