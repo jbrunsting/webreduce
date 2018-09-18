@@ -61,6 +61,7 @@ function getPostHtml(post) {
     var postContent = document.createElement("li");
 
     var header = document.createElement("header");
+    header.classList.add("post-header");
 
     var title = document.createElement("h3");
     title.appendChild(document.createTextNode(post.title));
@@ -84,6 +85,13 @@ function getPostHtml(post) {
         author.appendChild(document.createTextNode(post.author));
         author.classList.add("subtitle");
         header.appendChild(author);
+    }
+
+    if (post.icon) {
+        var icon = document.createElement("img");
+        icon.src = post.icon;
+        icon.classList.add("favicon");
+        header.appendChild(icon);
     }
 
     postContent.appendChild(header);

@@ -63,6 +63,7 @@ function getConfigModal(callback, previousConfig) {
  * @property {string} link The URL the post should link to - optional
  * @property {string} content The HTML content of the post - optional
  * @property {string} comments The URL of the comments page - optional
+ * @property {string} icon The URL of the content provider icon - optional
  */
 
 /**

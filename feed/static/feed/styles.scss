@@ -9,6 +9,8 @@ $large-margin: 16px;
 $medium-margin: 8px;
 $small-margin: 4px;
 
+$favicon-size: 16px;
+
 form.single-button {
   display: inline-block;
   margin: 0;
@@ -59,4 +61,21 @@ form.single-button {
   ~ .collapse-button .collapse-icon:before {
     content: "▲";
   }
+}
+
+.post-header {
+    position: relative;
+
+    h3 {
+        padding-right: $favicon-size + $large-margin;
+    }
+}
+
+.favicon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 0.5;
+    width: $favicon-size;
+    height: $favicon-size;
 }
