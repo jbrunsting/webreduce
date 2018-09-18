@@ -6,7 +6,7 @@ services:
     web:
         build: .
         ports:
-          - "8080:8080"
+          - 8080:8080
         volumes:
           - /static:/src/static_root
         depends_on:
@@ -16,11 +16,13 @@ services:
     nginx:
         image: nginx:latest
         ports:
-          - "80:80"
+          - 80:80
+          - 443:443
         volumes:
-          - ./nginx:/etc/nginx/conf.d
-          - /static:/public/static
-          - /certs:/etc/letsencrypt
-          - /certs-data:/data/letsencrypt
+          - ./nginx:/etc/nginx/conf.d:ro
+          - /static:/public/static:ro
+          - /docker/nginx/www/:/var/www:ro
+          - /certs/letsencrypt:/etc/letsencrypt:ro
+          - /var/run/docker.sock:/tmp/docker.sock:ro
         depends_on:
           - web

@@ -1,7 +1,9 @@
-docker run -it --rm \
-    -v certs:/etc/letsencrypt \
-    -v certs-data:/data/letsencrypt \
-    deliverous/certbot \
-    certonly \
-    --webroot --webroot-path=/data/letsencrypt \
+docker run -it --rm --name certbot \
+    -v /certs/letsencrypt:/etc/letsencrypt \
+    -v /var/log/letsencrypt:/var/log/letsencrypt \
+    -v /docker/nginx/www/letsencrypt:/var/www/.well-known \
+    quay.io/letsencrypt/letsencrypt -t certonly \
+    --agree-tos --renew-by-default \
+    --email jacob.brunsting@gmail.com \
+    --webroot -w /var/www \
     -d webreduce.ca -d www.webreduce.ca
