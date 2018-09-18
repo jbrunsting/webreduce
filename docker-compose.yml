@@ -5,26 +5,22 @@ services:
         image: postgres:latest
     web:
         build: .
-        command: >
-            sh -c "
-            python3 manage.py migrate
-            && python3 manage.py collectstatic --noinput
-            && python3 manage.py runserver 0.0.0.0:80"
         ports:
-          - "80:80"
+          - "8080:8080"
         volumes:
           - /static:/src/static_root
         depends_on:
           - db
         environment:
           - DEBUG=False
-          - SECRET_KEY
     nginx:
         image: nginx:latest
         ports:
-          - "443:443"
+          - "80:80"
         volumes:
           - ./nginx:/etc/nginx/conf.d
           - /static:/public/static
+          - /certs:/etc/letsencrypt
+          - /certs-data:/data/letsencrypt
         depends_on:
           - web
