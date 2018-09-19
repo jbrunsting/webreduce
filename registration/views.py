@@ -13,6 +13,9 @@ from .models import DefaultPlugin, User
 
 @require_http_methods(["GET"])
 def home(request):
+    if request.user.is_authenticated:
+        return redirect('/feed')
+
     return render(request, 'registration/home.html')
 
 
