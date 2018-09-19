@@ -233,6 +233,11 @@ button {
   padding: 2px 6px;
 }
 
+.toolbar {
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
 .nav {
   @extend .with-nav;
 
