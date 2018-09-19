@@ -17,6 +17,7 @@ services:
         image: nginx:latest
         ports:
           - 443:443
+          - 80:80
         volumes:
           - ./nginx:/etc/nginx/conf.d:ro
           - /static:/public/static:ro
