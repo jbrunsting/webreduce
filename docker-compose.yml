@@ -3,8 +3,10 @@ version: '3'
 services:
     db:
         image: postgres:latest
+        restart: always
     web:
         build: .
+        restart: always
         ports:
           - 8080:8080
         volumes:
@@ -15,6 +17,8 @@ services:
           - DEBUG=False
     nginx:
         image: nginx:latest
+        restart: always
+        network_mode: "host"
         ports:
           - 443:443
           - 80:80
@@ -26,3 +30,8 @@ services:
           - /var/run/docker.sock:/tmp/docker.sock:ro
         depends_on:
           - web
+    proxy:
+        image: imjacobclark/cors-container
+        restart: always
+        ports:
+          - 127.0.0.1:8000:3000
