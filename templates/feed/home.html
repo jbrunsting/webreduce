@@ -167,8 +167,9 @@
 
     subscriptions.forEach(function(subscription) {
         var configBtn = $("#configure-" + subscription.id);
-        if (!subscription.getConfigModal) {
+        if (!subscription.getConfigModal || !subscriptions.getConfigModal()) {
             configBtn.hide();
+            $("#error-" + subscription.id).hide();
         } else {
             configBtn.click(function() {
                 configure(subscription, showModal, "{{ csrf_token }}", function(config) {
