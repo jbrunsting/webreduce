@@ -99,7 +99,7 @@ function getPostHtml(post) {
 
     if (post.icon) {
         var icon = $("<img>");
-        icon.src = post.icon;
+	icon.attr("src", post.icon);
         icon.addClass("favicon");
         header.append(icon);
     }

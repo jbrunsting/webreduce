@@ -11,6 +11,7 @@ services:
           - 8080:8080
         volumes:
           - /static:/src/static_root
+          - /nginx:/src/nginx
         depends_on:
           - db
         environment:
@@ -19,12 +20,9 @@ services:
         image: nginx:latest
         restart: always
         network_mode: "host"
-        ports:
-          - 443:443
-          - 80:80
         volumes:
-          - ./nginx:/etc/nginx/conf.d:ro
           - /static:/public/static:ro
+          - /nginx:/etc/nginx/conf.d:ro
           - /docker/nginx/www/:/var/www:ro
           - /certs/letsencrypt:/etc/letsencrypt:ro
           - /var/run/docker.sock:/tmp/docker.sock:ro
