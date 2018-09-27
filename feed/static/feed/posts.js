@@ -184,26 +184,41 @@ function fillPostBuffers(subscriptionHandlers, callback) {
     }, HANDLER_TIMEOUT);
 }
 
-var HANDLER_LOOKBACK = 15;
+var HANDLER_LOOKBACK = 10;
 var lastUsedHandlers = []
 
+var SCORE_FOR_PRECEEDING = 2;
 var MAX_DATE_SCORE = 3;
 var DATE_SCORE_SCALING_FACTOR = 10000000; // 3 hours for ~1 point
-function compareHandlers(handlerOne, handlerTwo) {
-  var dateDiff = handlerTwo.unusedPosts[0].date - handlerOne.unusedPosts[0].date;
-  var dateScoreDiff = Math.max(Math.min(dateDiff / 10000, MAX_DATE_SCORE), -MAX_DATE_SCORE);
+function getBestHandler(handlerOne, handlerTwo) {
+    var dateDiff = handlerOne.unusedPosts[0].date - handlerTwo.unusedPosts[0].date;
+    var dateScoreDiff = Math.max(Math.min(dateDiff / 10000, MAX_DATE_SCORE), -MAX_DATE_SCORE);
 
-  var handlerOneOccurences = $.grep(lastUsedHandlers, function(handler) {
-      return handler == handlerOne;
-  }).length;
+    var handlerOneOccurences = $.grep(lastUsedHandlers, function(handler) {
+        return handler.pluginName === handlerOne.pluginName;
+    }).length;
 
-  var handlerTwoOccurences = $.grep(lastUsedHandlers, function(handler) {
-      return handler == handlerTwo;
-  }).length;
+    var handlerTwoOccurences = $.grep(lastUsedHandlers, function(handler) {
+        return handler.pluginName === handlerTwo.pluginName;
+    }).length;
 
-  console.log("scores: " + dateScoreDiff + ", " + handlerOneOccurences + ", " + handlerTwoOccurences);
+    var handlerOneScore = (HANDLER_LOOKBACK - handlerOneOccurences) + dateScoreDiff;
+    var handlerTwoScore = (HANDLER_LOOKBACK - handlerTwoOccurences) - dateScoreDiff;
 
-  return dateScoreDiff + handlerOneOccurences - handlerTwoOccurences;
+    if (lastUsedHandlers.length != 0) {
+        lastUsed = lastUsedHandlers[lastUsedHandlers.length - 1];
+        if (lastUsed.pluginName === handlerOne.pluginName) {
+            handlerOneScore += SCORE_FOR_PRECEEDING;
+        } else if (lastUsed == handlerTwo) {
+            handlerTwoScore += SCORE_FOR_PRECEEDING;
+        }
+    }
+
+    if (handlerOneScore > handlerTwoScore) {
+        return handlerOne;
+    }
+
+    return handlerTwo;
 }
 
 function getNextPost(subscriptionHandlers, callback) {
@@ -214,9 +229,11 @@ function getNextPost(subscriptionHandlers, callback) {
                 return;
             }
 
-            if (!handlerToUse || compareHandlers(handler, handlerToUse) < 0) {
+            if (!handlerToUse) {
                 handlerToUse = handler;
             }
+
+            handlerToUse = getBestHandler(handlerToUse, handler);
         });
 
         if (!handlerToUse) {
