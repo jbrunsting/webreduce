@@ -13,9 +13,9 @@
     <button type="submit">Remove</button>
 </form>
 <h2>Owners</h2>
-<ul>
+<ul class="card-list">
     {% for owner in plugin.owners.all %}
-    <li>{{ owner.username }}</li>
+    <li class="card">{{ owner.username }}</li>
     {% endfor %}
 </ul>
 {% endblock %}

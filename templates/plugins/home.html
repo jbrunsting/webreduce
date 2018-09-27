@@ -2,8 +2,8 @@
 
 {% block content %}
 {% for plugin, plugin_data in plugins.items %}
-<ul>
-    <li>
+<ul class="card-list">
+    <li class="card">
         <header class="with-nav">
             <h3>{{ plugin.name }}</h3>
             <div>
@@ -26,7 +26,7 @@
         </div>
     </li>
     {% for version in plugin_data.versions %}
-    <li>
+    <li class="card">
         <header class="with-nav">
             <h3><a href="/plugins/view/{{ version.id }}">v{{ version.major_version }}.{{ version.minor_version }}</a></h3>
             {% if version.published %}
@@ -60,9 +60,9 @@
     {% endfor %}
 </ul>
 {% endfor %}
-<ul>
+<ul class="card-list">
     <a href="/plugins/create">
-        <li class="jumbo-button">
+        <li class="jumbo-button card">
             +
         </li>
     </a>

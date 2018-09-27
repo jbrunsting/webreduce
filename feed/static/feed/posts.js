@@ -58,58 +58,73 @@ function getHandlerPosts(handler, callback) {
 
 // TODO: Jquery!
 function getPostHtml(post) {
-    var postContent = document.createElement("li");
+    var postContent = $("<li>");
+    postContent.addClass("card");
 
-    var header = document.createElement("header");
-    header.classList.add("post-header");
+    var header = $("<header>");
+    header.addClass("post-header");
 
-    var title = document.createElement("h3");
-    title.appendChild(document.createTextNode(post.title));
+    var title = $("<h3>");
+    title.append(post.title);
 
     if (post.link) {
-        var titleLink = document.createElement("a");
-        titleLink.href = post.link
-        titleLink.appendChild(title);
-        header.appendChild(titleLink);
+        var titleLink = $("<a>");
+        titleLink.attr("href", post.link);
+        titleLink.append(title);
+        header.append(titleLink);
     } else {
-        header.appendChild(title);
+        header.append(title);
     }
 
-    var date = document.createElement("p");
-    date.appendChild(document.createTextNode((new Date(post.date)).toLocaleString()));
-    date.classList.add("subtitle");
-    header.appendChild(date);
+    var date = $("<p>");
+    date.append((new Date(post.date)).toLocaleString());
+    date.addClass("subtitle");
+    header.append(date);
 
     if (post.author) {
-        var author = document.createElement("p");
-        author.appendChild(document.createTextNode(post.author));
-        author.classList.add("subtitle");
-        header.appendChild(author);
-    }
-
-    if (post.icon) {
-        var icon = document.createElement("img");
-        icon.src = post.icon;
-        icon.classList.add("favicon");
-        header.appendChild(icon);
-    }
-
-    postContent.appendChild(header);
-
-    if (post.content) {
-        var content = document.createElement("div");
-        content.innerHTML = post.content;
-        postContent.appendChild(content);
+        var author = $("<p>");
+        author.append(post.author);
+        author.addClass("subtitle");
+        header.append(author);
     }
 
     if (post.comments) {
-        var commentsLink = document.createElement("a");
-        commentsLink.href = post.comments;
-        var comments = document.createElement("p");
-        comments.appendChild(document.createTextNode("comments"));
-        commentsLink.appendChild(comments);
-        commentsLink.classList.add("subtitle");
-        postContent.appendChild(commentsLink);
+        var commentsLink = $("<a>");
+        commentsLink.attr("href", post.comments);
+        commentsLink.append("comments");
+        var comments = $("<p>");
+        comments.append(commentsLink);
+        comments.addClass("subtitle");
+        header.append(comments);
+    }
+
+    if (post.icon) {
+        var icon = $("<img>");
+        icon.src = post.icon;
+        icon.addClass("favicon");
+        header.append(icon);
+    }
+
+    postContent.append(header);
+
+    if (post.content) {
+        var checkboxId = "collapse-checkbox-" + Math.round(Math.random() * 1000000);
+        var checkbox = $("<input>");
+        checkbox.addClass("collapse-checkbox");
+        checkbox.attr("type", "checkbox");
+        checkbox.attr("id", "checkbox-" + (Math.random() * 100000));
+
+        var label = $("<label>");
+        label.attr("htmlFor", checkbox.attr("id"));
+        label.addClass("collapse-label");
+
+        var content = $("<div>");
+        var contentDoc = new DOMParser().parseFromString(post.content, "text/html");
+        content.html(contentDoc.documentElement.textContent);
+        content.addClass("expandable");
+        postContent.append(content);
+        postContent.prepend(checkbox);
+        postContent.append(label);
     }
 
     return postContent;

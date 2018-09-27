@@ -64,7 +64,7 @@ p, div {
   font-variant: normal;
 }
 
-ul {
+.card-list {
   background-color: $light;
   border-radius: 2px;
   padding: 0;
@@ -72,7 +72,7 @@ ul {
   box-shadow: 0px 2px 8px 0px rgba($dark, 0.5);
 }
 
-li {
+.card {
   padding: $large-margin;
   border-bottom: 1px solid;
   border-top: 1px solid;
@@ -92,7 +92,7 @@ li {
   }
 }
 
-header:last-child {
+.card-list > header:last-child {
   margin-bottom: 0;
 }
 

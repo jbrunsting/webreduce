@@ -5,15 +5,15 @@
 <ul class="errorlist">
     {% if form.non_field_errors %}
     {% for err in form.non_field_errors %}
-    <li>{{ err }} </li>
+    <li class="card">{{ err }} </li>
     {% endfor %}
     {% endif %}
     {% if next %}
     {% if user.is_authenticated %}
-    <li>Your account doesn't have access to this page. To proceed,
+    <li class="card">Your account doesn't have access to this page. To proceed,
         please login with an account that has access.</li>
     {% else %}
-    <li>Please login to see this page.</li>
+    <li class="card">Please login to see this page.</li>
     {% endif %}
     {% endif %}
 </ul>

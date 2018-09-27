@@ -2,9 +2,9 @@
 
 {% block content %}
 <h1>Pending Approval</h1>
-<ul>
+<ul class="card-list">
     {% for version in versions %}
-    <li>
+    <li class="card">
         <h3>
             {{ version.plugin.name }} v{{ version.major_version }}.{{ version.minor_version }}
         </h3>

@@ -9,10 +9,10 @@
         <button type="submit">Search</button>
     </form>
 </header>
-<ul>
+<ul class="card-list">
     {% if results|length > 0 %}
     {% for plugin_version in results %}
-    <li>
+    <li class="card">
         <header class="with-nav">
             <h3>
                 <a href="/plugins/view/{{ plugin_version.id }}">
@@ -33,16 +33,16 @@
     {% endfor %}
     {% else %}
     {% if searching %}
-    <li class="empty-placeholder">No search results</li>
+    <li class="empty-placeholder card">No search results</li>
     {% else %}
-    <li class="empty-placeholder">Enter a search term to find more plugins</li>
+    <li class="empty-placeholder card">Enter a search term to find more plugins</li>
     {% endif %}
     {% endif %}
 </ul>
 <h2>Top Plugins</h2>
-<ul>
+<ul class="card-list">
     {% for plugin_version in top_versions %}
-    <li>
+    <li class="card">
         <header class="with-nav">
             <h3>
                 <a href="/plugins/view/{{ plugin_version.id }}">

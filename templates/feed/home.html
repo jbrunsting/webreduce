@@ -2,17 +2,17 @@
 
 {% block content %}
 {% if subscriptions|length > 0 %}
-<ul>
+<ul class="card-list">
     <input id="collapse-subscriptions" type="checkbox" class="collapser"></input>
     <label for="collapse-subscriptions" class="collapse-button">
-        <li class="collapse-header">
+        <li class="card collapse-header">
             <h3>Subscriptions</h3>
             <div class="collapse-icon"></div>
         </li>
     </label>
     <div class="collapsable-content">
         {% for subscription in subscriptions %}
-        <li>
+        <li class="card">
             <header class="with-nav">
                 <h3>
                     <a href="/plugins/view/{{ subscription.plugin_version.id }}">
@@ -34,15 +34,15 @@
         </li>
         {% endfor %}
         <a href="/feed/search">
-            <li class="jumbo-button">+</li>
+            <li class="card jumbo-button">+</li>
         </a>
     </div>
 </ul>
 {% endif %}
 {% if updates|length > 0 %}
-<ul>
+<ul class="card-list">
     {% for old_version, new_version in updates %}
-    <li class="with-nav">
+    <li class="card with-nav">
         <h3>
             {{ old_version.plugin.name }}
         </h3>
@@ -63,11 +63,11 @@
     {% endfor %}
 </ul>
 {% endif %}
-<ul id="main-feed">
-    <li id="posts-loading-placeholder">
+<ul class="card-list" id="main-feed">
+    <li id="posts-loading-placeholder" class="card">
         <div class="loader"></div>
     </li>
-    <li id="posts-empty-placeholder" class="start-hidden">Nothing to see here! Setup a <a href="/feed/search">new plugin</a> to get more posts</li>
+    <li id="posts-empty-placeholder" class="card start-hidden">Nothing to see here! Setup a <a href="/feed/search">new plugin</a> to get more posts</li>
 </ul>
 {% if divide_into_pages %}
 <button id="prev-page">Previous</button>

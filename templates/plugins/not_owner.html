@@ -3,9 +3,9 @@
 {% block content %}
 <h1>Not an owner of "{{ plugin_name }}"</h1>
 <h2>Owners</h2>
-<ul>
+<ul class="card-list">
     {% for owner in plugin_owners %}
-    <li>
+    <li class="card">
         {{ owner }}
     </li>
     {% endfor %}
