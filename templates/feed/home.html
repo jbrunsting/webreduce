@@ -167,7 +167,7 @@
 
     subscriptions.forEach(function(subscription) {
         var configBtn = $("#configure-" + subscription.id);
-        if (!subscription.getConfigModal || !subscriptions.getConfigModal()) {
+        if (!subscription.getConfigModal || !subscription.getConfigModal()) {
             configBtn.hide();
             $("#error-" + subscription.id).hide();
         } else {
