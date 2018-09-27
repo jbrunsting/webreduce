@@ -36,6 +36,12 @@ form.single-button {
   color: $accent;
 }
 
+.collapse-icon.bottom {
+  display: flex;
+  justify-content: center;
+  margin-bottom: -$large-margin;
+}
+
 .collapsable-content {
   display: none;
 }
@@ -51,14 +57,24 @@ form.single-button {
   content: "▼";
 }
 
+.expandable {
+  max-height: 90px;
+  overflow: hidden;
+}
+
 .collapser:checked {
+
   ~ .collapsable-content {
     display: block;
   }
 
+  ~ .expandable {
+      max-height: initial;
+  }
+
   ~ .collapse-button {}
 
-  ~ .collapse-button .collapse-icon:before {
+  ~ .collapse-icon:before {
     content: "▲";
   }
 }

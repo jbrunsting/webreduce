@@ -188,14 +188,11 @@ textarea {
 
 .subtitle {
   display: inline-block;
-  margin: 0 $medium-margin $medium-margin 0;
+  margin: 0 $medium-margin $medium-margin 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
   white-space: nowrap;
   font-size: 0.9em;
-
-  p {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
 }
 
 .loader {

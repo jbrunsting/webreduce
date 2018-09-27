@@ -56,7 +56,6 @@ function getHandlerPosts(handler, callback) {
     }
 }
 
-// TODO: Jquery!
 function getPostHtml(post) {
     var postContent = $("<li>");
     postContent.addClass("card");
@@ -108,15 +107,15 @@ function getPostHtml(post) {
     postContent.append(header);
 
     if (post.content) {
-        var checkboxId = "collapse-checkbox-" + Math.round(Math.random() * 1000000);
         var checkbox = $("<input>");
-        checkbox.addClass("collapse-checkbox");
+        checkbox.addClass("collapser");
         checkbox.attr("type", "checkbox");
-        checkbox.attr("id", "checkbox-" + (Math.random() * 100000));
+        checkbox.attr("id", "checkbox-" + Math.round(Math.random() * 100000000));
 
         var label = $("<label>");
-        label.attr("htmlFor", checkbox.attr("id"));
-        label.addClass("collapse-label");
+        label.attr("for", checkbox.attr("id"));
+        label.addClass("collapse-button");
+        label.addClass("collapse-icon bottom");
 
         var content = $("<div>");
         var contentDoc = new DOMParser().parseFromString(post.content, "text/html");
@@ -185,6 +184,28 @@ function fillPostBuffers(subscriptionHandlers, callback) {
     }, HANDLER_TIMEOUT);
 }
 
+var HANDLER_LOOKBACK = 15;
+var lastUsedHandlers = []
+
+var MAX_DATE_SCORE = 3;
+var DATE_SCORE_SCALING_FACTOR = 10000000; // 3 hours for ~1 point
+function compareHandlers(handlerOne, handlerTwo) {
+  var dateDiff = handlerTwo.unusedPosts[0].date - handlerOne.unusedPosts[0].date;
+  var dateScoreDiff = Math.max(Math.min(dateDiff / 10000, MAX_DATE_SCORE), -MAX_DATE_SCORE);
+
+  var handlerOneOccurences = $.grep(lastUsedHandlers, function(handler) {
+      return handler == handlerOne;
+  }).length;
+
+  var handlerTwoOccurences = $.grep(lastUsedHandlers, function(handler) {
+      return handler == handlerTwo;
+  }).length;
+
+  console.log("scores: " + dateScoreDiff + ", " + handlerOneOccurences + ", " + handlerTwoOccurences);
+
+  return dateScoreDiff + handlerOneOccurences - handlerTwoOccurences;
+}
+
 function getNextPost(subscriptionHandlers, callback) {
     fillPostBuffers(subscriptionHandlers, function() {
         var handlerToUse;
@@ -193,7 +214,7 @@ function getNextPost(subscriptionHandlers, callback) {
                 return;
             }
 
-            if (!handlerToUse || handler.unusedPosts[0].date < handlerToUse.unusedPosts[0].date) {
+            if (!handlerToUse || compareHandlers(handler, handlerToUse) < 0) {
                 handlerToUse = handler;
             }
         });
@@ -202,6 +223,9 @@ function getNextPost(subscriptionHandlers, callback) {
             callback();
             return;
         }
+
+        lastUsedHandlers.push(handlerToUse);
+        lastUsedHandlers = lastUsedHandlers.slice(lastUsedHandlers.length - HANDLER_LOOKBACK, lastUsedHandlers.length);
 
         callback(handlerToUse.unusedPosts.shift());
     });
