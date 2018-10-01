@@ -60,6 +60,10 @@ form.single-button {
 .expandable {
   max-height: 90px;
   overflow: hidden;
+
+  img {
+    width: 100%;
+  }
 }
 
 .collapser:checked {
