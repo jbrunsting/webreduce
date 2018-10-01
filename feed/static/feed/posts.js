@@ -99,7 +99,7 @@ function getPostHtml(post) {
 
     if (post.icon) {
         var icon = $("<img>");
-        icon.src = post.icon;
+	icon.attr("src", post.icon);
         icon.addClass("favicon");
         header.append(icon);
     }
@@ -187,9 +187,9 @@ function fillPostBuffers(subscriptionHandlers, callback) {
 var HANDLER_LOOKBACK = 10;
 var lastUsedHandlers = []
 
-var SCORE_FOR_PRECEEDING = 2;
+var SCORE_FOR_PRECEEDING = 4;
 var MAX_DATE_SCORE = 3;
-var DATE_SCORE_SCALING_FACTOR = 10000000; // 3 hours for ~1 point
+var DATE_SCORE_SCALING_FACTOR = 100000000;
 function getBestHandler(handlerOne, handlerTwo) {
     var dateDiff = handlerOne.unusedPosts[0].date - handlerTwo.unusedPosts[0].date;
     var dateScoreDiff = Math.max(Math.min(dateDiff / 10000, MAX_DATE_SCORE), -MAX_DATE_SCORE);
@@ -202,14 +202,14 @@ function getBestHandler(handlerOne, handlerTwo) {
         return handler.pluginName === handlerTwo.pluginName;
     }).length;
 
-    var handlerOneScore = (HANDLER_LOOKBACK - handlerOneOccurences) + dateScoreDiff;
-    var handlerTwoScore = (HANDLER_LOOKBACK - handlerTwoOccurences) - dateScoreDiff;
+    var handlerOneScore = -Math.pow(handlerOneOccurences, 2) + dateScoreDiff;
+    var handlerTwoScore = -Math.pow(handlerTwoOccurences, 2) - dateScoreDiff;
 
     if (lastUsedHandlers.length != 0) {
         lastUsed = lastUsedHandlers[lastUsedHandlers.length - 1];
         if (lastUsed.pluginName === handlerOne.pluginName) {
             handlerOneScore += SCORE_FOR_PRECEEDING;
-        } else if (lastUsed == handlerTwo) {
+        } else if (lastUsed.pluginName === handlerTwo.pluginName) {
             handlerTwoScore += SCORE_FOR_PRECEEDING;
         }
     }
